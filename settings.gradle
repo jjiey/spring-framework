@@ -24,6 +24,7 @@ include "spring-messaging"
 include "spring-orm"
 include "spring-oxm"
 include "spring-test"
+include 'spring-test-yj'
 include "spring-tx"
 include "spring-web"
 include "spring-webmvc"
