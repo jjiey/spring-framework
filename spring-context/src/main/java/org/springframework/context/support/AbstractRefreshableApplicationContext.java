@@ -131,6 +131,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 			beanFactory.setSerializationId(getId());
 			customizeBeanFactory(beanFactory);
 			loadBeanDefinitions(beanFactory);
+			// 加锁原因：该方法可能并不是在主流程里调用的，可能被其他分支调用
 			synchronized (this.beanFactoryMonitor) {
 				this.beanFactory = beanFactory;
 			}
