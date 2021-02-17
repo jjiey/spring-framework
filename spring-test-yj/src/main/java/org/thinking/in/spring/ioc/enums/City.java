@@ -5,7 +5,7 @@ package org.thinking.in.spring.ioc.enums;
  */
 public enum City {
 
-    BEIJING,
-    HANGZHOU,
-    SHANGHAI
+	BEIJING,
+	HANGZHOU,
+	SHANGHAI
 }

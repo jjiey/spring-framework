@@ -119,6 +119,7 @@ public abstract class BeanDefinitionReaderUtils {
 		}
 
 		String id = generatedBeanName;
+		// 如果是嵌套 bean
 		if (isInnerBean) {
 			// Inner bean: generate identity hashcode suffix.
 			id = generatedBeanName + GENERATED_BEAN_NAME_SEPARATOR + ObjectUtils.getIdentityHexString(definition);

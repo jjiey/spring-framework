@@ -12,5 +12,5 @@ import org.thinking.in.spring.ioc.annotation.Super;
 @EqualsAndHashCode(callSuper = true)
 public class SuperUser extends User {
 
-    private String address;
+	private String address;
 }

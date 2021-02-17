@@ -19,12 +19,12 @@ public class UserRepository {
 	/**
 	 * 自定义 Bean
 	 */
-    private Collection<User> users;
+	private Collection<User> users;
 
 	/**
 	 * 內建非 Bean 对象（依赖）
 	 */
 	private BeanFactory beanFactory;
 
-    private ObjectFactory<ApplicationContext> objectFactory;
+	private ObjectFactory<ApplicationContext> objectFactory;
 }

@@ -79,6 +79,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * entirely background role and has no relevance to the end-user. This hint is
 	 * used when registering beans that are completely part of the internal workings
 	 * of a {@link org.springframework.beans.factory.parsing.ComponentDefinition}.
+	 *
+	 * 标识该 bean 用于基础设施
 	 */
 	int ROLE_INFRASTRUCTURE = 2;
 
@@ -87,6 +89,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**
 	 * Set the name of the parent definition of this bean definition, if any.
+	 *
+	 * parent: extends
 	 */
 	void setParentName(@Nullable String parentName);
 
