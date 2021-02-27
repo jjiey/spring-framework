@@ -35,6 +35,9 @@ public interface HierarchicalBeanFactory extends BeanFactory {
 
 	/**
 	 * Return the parent bean factory, or {@code null} if there is none.
+	 *
+	 * hierarchical: 分层的
+	 * 层次性由 parent 来体现
 	 */
 	@Nullable
 	BeanFactory getParentBeanFactory();
@@ -47,6 +50,11 @@ public interface HierarchicalBeanFactory extends BeanFactory {
 	 * @param name the name of the bean to query
 	 * @return whether a bean with the given name is defined in the local factory
 	 * @see BeanFactory#containsBean
+	 *
+	 * 返回是否 local bean factory 中包含给定 name 的 bean，忽略在 ancestor contexts 中定义的 bean。
+	 * 这是 containsBean()（在 BeanFactory 里提供）的另一种选择，忽略来自 ancestor bean factory 中给定 name 的 bean。
+	 * @param 查询的 bean 的 name
+	 * @return 是否给定 name 的 bean 在 local factory 中定义
 	 */
 	boolean containsLocalBean(String name);
 

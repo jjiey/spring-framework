@@ -168,6 +168,8 @@ public interface BeanFactory {
 	 * the affected bean isn't a prototype
 	 * @throws BeansException if the bean could not be created
 	 * @since 2.5
+	 *
+	 * shared: 单例   independent: 原生
 	 */
 	Object getBean(String name, Object... args) throws BeansException;
 
@@ -204,6 +206,8 @@ public interface BeanFactory {
 	 * the affected bean isn't a prototype
 	 * @throws BeansException if the bean could not be created
 	 * @since 4.1
+	 *
+	 * shared: 单例   independent: 原生
 	 */
 	<T> T getBean(Class<T> requiredType, Object... args) throws BeansException;
 

@@ -16,6 +16,12 @@
 
 package org.springframework.beans.factory;
 
+import org.springframework.beans.BeansException;
+import org.springframework.core.ResolvableType;
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,12 +29,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.springframework.beans.BeansException;
-import org.springframework.core.ResolvableType;
-import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 /**
  * Convenience methods operating on bean factories, in particular
@@ -327,12 +327,16 @@ public abstract class BeanFactoryUtils {
 		Assert.notNull(lbf, "ListableBeanFactory must not be null");
 		Map<String, T> result = new LinkedHashMap<>(4);
 		result.putAll(lbf.getBeansOfType(type));
+		// 如果 if this beanFactory is hierarchical beanFactory
 		if (lbf instanceof HierarchicalBeanFactory) {
+			// 强转后去 parent 里继续找
 			HierarchicalBeanFactory hbf = (HierarchicalBeanFactory) lbf;
+			// 既判断 null，也判断类型。递归
 			if (hbf.getParentBeanFactory() instanceof ListableBeanFactory) {
 				Map<String, T> parentResult = beansOfTypeIncludingAncestors(
 						(ListableBeanFactory) hbf.getParentBeanFactory(), type);
 				parentResult.forEach((beanName, beanInstance) -> {
+					// 排除重复 bean：如果 parent 的 bean 在 child 里出现过，排除 parent 里的，保留 child 里的
 					if (!result.containsKey(beanName) && !hbf.containsLocalBean(beanName)) {
 						result.put(beanName, beanInstance);
 					}
