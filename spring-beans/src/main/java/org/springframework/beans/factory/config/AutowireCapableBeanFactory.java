@@ -16,14 +16,14 @@
 
 package org.springframework.beans.factory.config;
 
-import java.util.Set;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.TypeConverter;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.lang.Nullable;
+
+import java.util.Set;
 
 /**
  * Extension of the {@link org.springframework.beans.factory.BeanFactory}
@@ -375,6 +375,16 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @throws BeansException if dependency resolution failed for any other reason
 	 * @since 2.5
 	 * @see #resolveDependency(DependencyDescriptor, String, Set, TypeConverter)
+	 *
+	 * 解析针对此工厂中定义的 beans 的指定的依赖。
+	 * @param descriptor 依赖描述符（字段/方法/构造器）
+	 * @param requestingBeanName 声明给定依赖的 bean 的名称 [即被注入的 bean 的名称]
+	 * @return 解析的对象，如果找不到则为 null
+	 * @throws NoSuchBeanDefinitionException 如果没有找到匹配的 bean
+	 * @throws NoUniqueBeanDefinitionException 如果找到多个匹配的 bean
+	 * @throws BeansException 如果依赖解析由于任何其他原因而失败
+	 * @since 2.5
+	 * @see #resolveDependency(DependencyDescriptor, String, Set, TypeConverter)
 	 */
 	@Nullable
 	Object resolveDependency(DependencyDescriptor descriptor, @Nullable String requestingBeanName) throws BeansException;
@@ -390,6 +400,18 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @throws NoSuchBeanDefinitionException if no matching bean was found
 	 * @throws NoUniqueBeanDefinitionException if more than one matching bean was found
 	 * @throws BeansException if dependency resolution failed for any other reason
+	 * @since 2.5
+	 * @see DependencyDescriptor
+	 *
+	 * 解析针对此工厂中定义的 beans 的指定的依赖。
+	 * @param descriptor 依赖描述符（字段/方法/构造器）
+	 * @param requestingBeanName 声明给定依赖的 bean 的名称 [即被注入的 bean 的名称]
+	 * @param autowiredBeanNames 自动装配的 beans (用于解析给定依赖)的所有名字 应该被添加到[里面]的 一个集合
+	 * @param typeConverter 用于填充 arrays 和 collections 的 TypeConverter [类型转换器，spring 类型转换会用到]
+	 * @return 解析的对象，如果找不到则为 null
+	 * @throws NoSuchBeanDefinitionException 如果没有找到匹配的 bean
+	 * @throws NoUniqueBeanDefinitionException 如果找到多个匹配的 bean
+	 * @throws BeansException 如果依赖解析由于任何其他原因而失败
 	 * @since 2.5
 	 * @see DependencyDescriptor
 	 */

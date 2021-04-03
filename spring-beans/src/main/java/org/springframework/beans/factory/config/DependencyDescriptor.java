@@ -16,19 +16,8 @@
 
 package org.springframework.beans.factory.config;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.Serializable;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.Map;
-import java.util.Optional;
-
 import kotlin.reflect.KProperty;
 import kotlin.reflect.jvm.ReflectJvmMapping;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.InjectionPoint;
@@ -41,7 +30,19 @@ import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Map;
+import java.util.Optional;
+
 /**
+ * 注入描述符
+ *
  * Descriptor for a specific dependency that is about to be injected.
  * Wraps a constructor parameter, a method parameter or a field,
  * allowing unified access to their metadata.
@@ -52,6 +53,10 @@ import org.springframework.util.ObjectUtils;
 @SuppressWarnings("serial")
 public class DependencyDescriptor extends InjectionPoint implements Serializable {
 
+	/**
+	 * 声明[被注入的]类
+	 * 比如 AnnotationDependencyInjectionResolutionDemo1 里需要注入 User，则该属性为 AnnotationDependencyInjectionResolutionDemo1 类
+	 */
 	private final Class<?> declaringClass;
 
 	@Nullable
@@ -65,10 +70,19 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
 	@Nullable
 	private String fieldName;
 
+	/**
+	 * 对应 @Autowired required
+	 */
 	private final boolean required;
 
+	/**
+	 * 对应 @Lazy value 为 true，eager 为 false
+	 */
 	private final boolean eager;
 
+	/**
+	 * 嵌套层次
+	 */
 	private int nestingLevel = 1;
 
 	@Nullable

@@ -257,6 +257,13 @@ public abstract class BeanFactoryUtils {
 	 * @param type the type that beans must match
 	 * @return the array of matching bean names, or an empty array if none
 	 * @see ListableBeanFactory#getBeanNamesForType(Class, boolean, boolean)
+	 *
+	 * @param lbf bean factory [ListableBeanFactory 的缩写]
+	 * @param includeNonSingletons 是否包含原型或原型作用域的 bean 或仅包含单例（也适用于 FactoryBeans）
+	 * @param allowEagerInit
+	 * @param type bean 必须匹配的类型
+	 * @return 匹配的 bean 名称的数组，如果没有则为空数组
+	 * @see ListableBeanFactory#getBeanNamesForType(Class, boolean, boolean)
 	 */
 	public static String[] beanNamesForTypeIncludingAncestors(
 			ListableBeanFactory lbf, Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {

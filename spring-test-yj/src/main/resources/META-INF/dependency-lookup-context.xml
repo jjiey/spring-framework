@@ -16,6 +16,7 @@
 		<property name="name" value="yangsanity"/>
 		<property name="city" value="BEIJING"/>
 		<property name="workCities" value="BEIJING,HANGZHOU"/>
+<!--		<property name="lifeCities" value="BEIJING,HANGZHOU"/>-->
 		<property name="lifeCities">
 			<list>
 				<value>BEIJING</value>
