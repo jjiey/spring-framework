@@ -37,6 +37,7 @@ public class User implements BeanNameAware {
 
 	/**
 	 * 当前 Bean 的名称
+	 * 不需要序列化或反序列化，只是容器的一个标识
 	 */
 	private transient String beanName;
 

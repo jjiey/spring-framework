@@ -11,6 +11,8 @@ repositories {
 
 dependencies {
     compile(project(":spring-context"))
+    compile(project(":spring-web"))
+    compile(project(":spring-webmvc"))
     testCompile group: 'junit', name: 'junit', version: '4.12'
     // lombok
     compile group: 'org.projectlombok', name: 'lombok', version: '1.18.18'
