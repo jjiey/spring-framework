@@ -30,16 +30,21 @@ import java.util.Set;
  * interface to be implemented by bean factories that are capable of
  * autowiring, provided that they want to expose this functionality for
  * existing bean instances.
+ * be capable of：能够
+ * BeanFactory 接口的扩展，由能够自动装配(autowiring)的 bean 工厂实现，前提是它们希望为存在的 bean 实例暴露此功能。
  *
  * <p>This subinterface of BeanFactory is not meant to be used in normal
  * application code: stick to {@link org.springframework.beans.factory.BeanFactory}
  * or {@link org.springframework.beans.factory.ListableBeanFactory} for
  * typical use cases.
+ * stick to：坚持
+ * 此 BeanFactory 的子接口不能在常规应用程序代码中使用：对于典型的使用案例，应该坚持(stick to) BeanFactory 或 ListableBeanFactory。
  *
  * <p>Integration code for other frameworks can leverage this interface to
  * wire and populate existing bean instances that Spring does not control
  * the lifecycle of. This is particularly useful for WebWork Actions and
  * Tapestry Page objects, for example.
+ * 集成其他框架的代码可以利用此接口来连接和填充存在的 Spring 无法控制其生命周期的 bean 实例。例如，这对于 WebWork Actions 和 Tapestry Page 对象特别有用。
  *
  * <p>Note that this interface is not implemented by
  * {@link org.springframework.context.ApplicationContext} facades,
@@ -47,11 +52,13 @@ import java.util.Set;
  * from an application context too, accessible through ApplicationContext's
  * {@link org.springframework.context.ApplicationContext#getAutowireCapableBeanFactory()}
  * method.
+ * 注意，ApplicationContext 的门面/外观(facade)未实现此接口，因为应用程序代码几乎从未使用过此接口。也就是说，它也可以从应用程序上下文中获得，可以通过 ApplicationContext 的 ApplicationContext#getAutowireCapableBeanFactory() 方法进行访问。
  *
  * <p>You may also implement the {@link org.springframework.beans.factory.BeanFactoryAware}
  * interface, which exposes the internal BeanFactory even when running in an
  * ApplicationContext, to get access to an AutowireCapableBeanFactory:
  * simply cast the passed-in BeanFactory to AutowireCapableBeanFactory.
+ * 你也可以实现 BeanFactoryAware 接口，即使在 ApplicationContext 中运行，该接口也可以暴露内部 BeanFactory，以访问 AutowireCapableBeanFactory：只需将传入的 BeanFactory 简单强转为 AutowireCapableBeanFactory 即可。
  *
  * @author Juergen Hoeller
  * @since 04.12.2003
@@ -122,6 +129,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 
 	//-------------------------------------------------------------------------
 	// Typical methods for creating and populating external bean instances
+	// 创建和填充外部 bean 实例的典型方法
 	//-------------------------------------------------------------------------
 
 	/**
@@ -172,6 +180,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 
 	//-------------------------------------------------------------------------
 	// Specialized methods for fine-grained control over the bean lifecycle
+	// 对 bean 的生命周期进行细粒度控制的专门方法
 	//-------------------------------------------------------------------------
 
 	/**
@@ -332,6 +341,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 
 	//-------------------------------------------------------------------------
 	// Delegate methods for resolving injection points
+	// 解决注入点的委托方法
 	//-------------------------------------------------------------------------
 
 	/**
@@ -376,8 +386,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @since 2.5
 	 * @see #resolveDependency(DependencyDescriptor, String, Set, TypeConverter)
 	 *
-	 * 解析针对此工厂中定义的 beans 的指定的依赖。
-	 * @param descriptor 依赖描述符（字段/方法/构造器）
+	 * 解析针对此工厂中定义的 bean 的指定依赖。
+	 * @param descriptor （字段/方法/构造器）的依赖描述符
 	 * @param requestingBeanName 声明给定依赖的 bean 的名称 [即被注入的 bean 的名称]
 	 * @return 解析的对象，如果找不到则为 null
 	 * @throws NoSuchBeanDefinitionException 如果没有找到匹配的 bean
@@ -403,10 +413,10 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @since 2.5
 	 * @see DependencyDescriptor
 	 *
-	 * 解析针对此工厂中定义的 beans 的指定的依赖。
-	 * @param descriptor 依赖描述符（字段/方法/构造器）
+	 * 解析针对此工厂中定义的 bean 的指定依赖。
+	 * @param descriptor （字段/方法/构造器）的依赖描述符
 	 * @param requestingBeanName 声明给定依赖的 bean 的名称 [即被注入的 bean 的名称]
-	 * @param autowiredBeanNames 自动装配的 beans (用于解析给定依赖)的所有名字 应该被添加到[里面]的 一个集合
+	 * @param autowiredBeanNames 自动装配的 bean (用于解析给定依赖)的所有名字 应该被添加到[里面]的 一个集合
 	 * @param typeConverter 用于填充 arrays 和 collections 的 TypeConverter [类型转换器，spring 类型转换会用到]
 	 * @return 解析的对象，如果找不到则为 null
 	 * @throws NoSuchBeanDefinitionException 如果没有找到匹配的 bean

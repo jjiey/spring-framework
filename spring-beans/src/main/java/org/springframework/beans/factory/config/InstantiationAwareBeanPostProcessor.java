@@ -16,11 +16,11 @@
 
 package org.springframework.beans.factory.config;
 
-import java.beans.PropertyDescriptor;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValues;
 import org.springframework.lang.Nullable;
+
+import java.beans.PropertyDescriptor;
 
 /**
  * Subinterface of {@link BeanPostProcessor} that adds a before-instantiation callback,
@@ -89,6 +89,8 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	 * instances being invoked on this bean instance.
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 * @see #postProcessBeforeInstantiation
+	 *
+	 * @return {@code true} bean 上的属性应该被设置；{@code false} 属性赋值(植入、填入)应该被跳过。正常的实现应返回{@code true}。返回{@code false} 也将阻止在此 bean 实例上调用任何后续的 InstantiationAwareBeanPostProcessor 实例(比如下面的两个方法)。
 	 */
 	default boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException {
 		return true;
@@ -111,6 +113,16 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 * @since 5.1
 	 * @see #postProcessPropertyValues
+	 *
+	 * applies：org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#applyPropertyValues()
+	 *
+	 * factory 为给定的 bean 应用(赋值)给定的 property values 之前的后置处理，不需要任何属性描述。
+	 * 如果提供了一个自定义的 postProcessPropertyValues 实现，该方法应该返回 null（默认），否则返回 {@code pvs}。
+	 * 此接口的未来版本中（会删除 postProcessPropertyValues），默认实现将直接按原样返回给定的 {@code pvs}。
+	 * @param pvs factory 将要应用的 property values（不可能为 null）(Java Beans 里对属性的描述，包括 Setter、Getter 等)
+	 * @return 应用于(赋值)给定 bean 的实际属性值（可以是传入的 PropertyValues 实例），或返回 null 将继续使用现有属性，但(如果接下来)继续调用 postProcessPropertyValues 将会有点特殊（当前 bean 类需要初始化的 PropertyDescriptor）
+	 *
+	 * (如果 postProcessAfterInstantiation 返回 false 该方法不会被调用) 和 postProcessPropertyValues 语义不同，返回 null 表示没有修改属性值
 	 */
 	@Nullable
 	default PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName)
@@ -137,7 +149,17 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 * @see #postProcessProperties
 	 * @see org.springframework.beans.MutablePropertyValues
-	 * @deprecated as of 5.1, in favor of {@link #postProcessProperties(PropertyValues, Object, String)}
+	 * @deprecated as of 5.1, in favor of {@link #postProcessProperties(PropertyValues, Object, String)
+	 *
+	 * applies：org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#applyPropertyValues()}
+	 *
+	 * factory 为给定的 bean 应用(赋值)给定的 property values 之前的后置处理。
+	 * 允许检查是否满足所有依赖关系，例如，基于设置 bean 属性上的 "Required" 注解。
+	 * @param pvs factory 将要应用的 property values（不可能为 null）
+	 * @param pds (非翻译: Java Beans 里对属性的描述，包括 Setter、Getter 等)
+	 * @return 应用于(赋值)给定 bean 的实际属性值（可以是传入的 PropertyValues 实例），或返回 null 来跳过属性填充
+	 *
+	 * (如果 postProcessAfterInstantiation 返回 false 该方法不会被调用) 相当于说 pvs 是从某些 source 读取进来的，这里允许用户进行修改，然后返回。默认情况下直接返回原 pvs。
 	 */
 	@Deprecated
 	@Nullable

@@ -16,25 +16,6 @@
 
 package org.springframework.beans.factory.support;
 
-import java.beans.PropertyEditor;
-import java.security.AccessControlContext;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeansException;
@@ -78,6 +59,25 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.StringValueResolver;
 
+import java.beans.PropertyEditor;
+import java.security.AccessControlContext;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 /**
  * Abstract base class for {@link org.springframework.beans.factory.BeanFactory}
  * implementations, providing the full capabilities of the
@@ -85,6 +85,7 @@ import org.springframework.util.StringValueResolver;
  * Does <i>not</i> assume a listable bean factory: can therefore also be used
  * as base class for bean factory implementations which obtain bean definitions
  * from some backend resource (where bean definition access is an expensive operation).
+ * BeanFactory 实现的抽象基类，提供 ConfigurableBeanFactory SPI 的全部功能。不承担(assume) listable bean factory：因此也可以用作 bean factory 实现的基类，该工厂从某些后端资源获取 bean definition（bean definition 访问是一项昂贵的操作）。
  *
  * <p>This class provides a singleton cache (through its base class
  * {@link org.springframework.beans.factory.support.DefaultSingletonBeanRegistry},
@@ -94,12 +95,14 @@ import org.springframework.util.StringValueResolver;
  * interface, custom destroy methods). Furthermore, it can manage a bean factory
  * hierarchy (delegating to the parent in case of an unknown bean), through implementing
  * the {@link org.springframework.beans.factory.HierarchicalBeanFactory} interface.
+ * 此类通过其基类 DefaultSingletonBeanRegistry 提供单例缓存，单例/原型推断，FactoryBean 处理，别名，合并 child bean definition，以及 bean 销毁（DisposableBean 接口，自定义销毁方法）。此外，它可以通过实现 HierarchicalBeanFactory 接口来管理 bean factory 层次结构（在未知(unknown，或许也可以翻译为 找不到?) bean 的情况下委托给父工厂）。
  *
  * <p>The main template methods to be implemented by subclasses are
  * {@link #getBeanDefinition} and {@link #createBean}, retrieving a bean definition
  * for a given bean name and creating a bean instance for a given bean definition,
  * respectively. Default implementations of those operations can be found in
  * {@link DefaultListableBeanFactory} and {@link AbstractAutowireCapableBeanFactory}.
+ * 子类要实现的主要模板方法是 getBeanDefinition 和 createBean，分别检索给定 bean name 的 bean definition 和创建给定 bean definition 的 bean 实例。这些操作的默认实现在 DefaultListableBeanFactory 和 AbstractAutowireCapableBeanFactory。
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
@@ -1057,10 +1060,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	@Override
 	public BeanDefinition getMergedBeanDefinition(String name) throws BeansException {
 		String beanName = transformedBeanName(name);
+		// 如果 beanDefinitionMap 里没有包涵这个 beanName && 当前 beanFactory 的 parent beanFactory 非空且是 ConfigurableBeanFactory，递归的去 parent beanFactory 里去查直到找到或找不到为止
 		// Efficiently check whether bean definition exists in this factory.
 		if (!containsBeanDefinition(beanName) && getParentBeanFactory() instanceof ConfigurableBeanFactory) {
 			return ((ConfigurableBeanFactory) getParentBeanFactory()).getMergedBeanDefinition(beanName);
 		}
+		// 在当前 beanFactory 中去找，返回的一定是 RootBeanDefinition
 		// Resolve merged bean definition locally.
 		return getMergedLocalBeanDefinition(beanName);
 	}
@@ -1154,6 +1159,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @param mbd the merged bean definition
 	 */
 	protected void destroyBean(String beanName, Object bean, RootBeanDefinition mbd) {
+		//
 		new DisposableBeanAdapter(bean, beanName, mbd, getBeanPostProcessors(), getAccessControlContext()).destroy();
 	}
 
@@ -1270,11 +1276,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @throws BeanDefinitionStoreException in case of an invalid bean definition
 	 */
 	protected RootBeanDefinition getMergedLocalBeanDefinition(String beanName) throws BeansException {
+		// mergedBeanDefinitions 为当前 beanFactory 里的本地缓存（只关注当前 beanFactory 里，不关注 parent beanFactory 里）
 		// Quick check on the concurrent map first, with minimal locking.
 		RootBeanDefinition mbd = this.mergedBeanDefinitions.get(beanName);
 		if (mbd != null && !mbd.stale) {
 			return mbd;
 		}
+		// 上面缓存没命中，继续找
 		return getMergedBeanDefinition(beanName, getBeanDefinition(beanName));
 	}
 
@@ -1301,32 +1309,40 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * or {@code null} in case of a top-level bean
 	 * @return a (potentially merged) RootBeanDefinition for the given bean
 	 * @throws BeanDefinitionStoreException in case of an invalid bean definition
+	 *
+	 * @param containingBd 有嵌套 bean 的情况下包含的 bean definition，或这，如果是一个顶层 bean 则为 null
 	 */
 	protected RootBeanDefinition getMergedBeanDefinition(
 			String beanName, BeanDefinition bd, @Nullable BeanDefinition containingBd)
 			throws BeanDefinitionStoreException {
 
+		// mergedBeanDefinitions 是前面那个当前 beanFactory 里的本地缓存（多个操作无法保证原子性，必须加锁）
 		synchronized (this.mergedBeanDefinitions) {
 			RootBeanDefinition mbd = null;
 			RootBeanDefinition previous = null;
 
 			// Check with full lock now in order to enforce the same merged instance.
 			if (containingBd == null) {
+				// 细节：如果是多线程情况下，防止在加这把锁之前有别的线程修改 mergedBeanDefinitions，所以再获取一次
 				mbd = this.mergedBeanDefinitions.get(beanName);
 			}
 
 			if (mbd == null || mbd.stale) {
 				previous = mbd;
+				// 如果没有 parent
 				if (bd.getParentName() == null) {
+					// 如果是 RootBeanDefinition 就直接 clone 自己，否则 new 一个 RootBeanDefinition
 					// Use copy of given root bean definition.
 					if (bd instanceof RootBeanDefinition) {
 						mbd = ((RootBeanDefinition) bd).cloneBeanDefinition();
 					}
 					else {
+						// 把 GenericBeanDefinition 转为 RootBeanDefinition
 						mbd = new RootBeanDefinition(bd);
 					}
 				}
 				else {
+					// 对于 child bean definition 来说，要先找到它的 parent bean definition（pbd 可能在 local BeanFactory 也可能在 parent BeanFactory，所以需要调用 getMergedBeanDefinition()）
 					// Child bean definition: needs to be merged with parent.
 					BeanDefinition pbd;
 					try {
@@ -1350,6 +1366,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 						throw new BeanDefinitionStoreException(bd.getResourceDescription(), beanName,
 								"Could not resolve parent bean definition '" + bd.getParentName() + "'", ex);
 					}
+					// 找到 parent bean definition 后，先深拷贝一份，然后和 child bean definition 进行 override，如果属性重复，child 覆盖 parent，否则添加该属性
+					// 这里 GenericBeanDefinition 又变成了 RootBeanDefinition
 					// Deep copy with overridden values.
 					mbd = new RootBeanDefinition(pbd);
 					mbd.overrideFrom(bd);
@@ -1460,6 +1478,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			if (mbd.hasBeanClass()) {
 				return mbd.getBeanClass();
 			}
+			// Java Security 安全控制：如果 System.getSecurityManager() != null，说明系统的安全管理器激活了，这里需要有一个权限控制（Java Security 打开的时候，允许进行操作）。这是 ClassLoader 里的一个安全机制
 			if (System.getSecurityManager() != null) {
 				return AccessController.doPrivileged((PrivilegedExceptionAction<Class<?>>) () ->
 					doResolveBeanClass(mbd, typesToMatch), getAccessControlContext());

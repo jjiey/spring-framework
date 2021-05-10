@@ -16,6 +16,8 @@
 
 package org.springframework.core.annotation;
 
+import org.springframework.lang.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
 import java.lang.reflect.AnnotatedElement;
@@ -23,8 +25,6 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-
-import org.springframework.lang.Nullable;
 
 /**
  * Provides access to a collection of merged annotations, usually obtained
@@ -171,6 +171,8 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
 	 * {@link MergedAnnotation#missing()} if none is present.
 	 * @param annotationType the annotation type to get
 	 * @return a {@link MergedAnnotation} instance
+	 *
+	 * 获取 MergedAnnotationSelectors#nearest() 最近的匹配指定类型的注解或元注解，或者，如果不存在则获取 MergedAnnotation#missing()。
 	 */
 	<A extends Annotation> MergedAnnotation<A> get(Class<A> annotationType);
 
@@ -287,6 +289,9 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
 	 * @param element the source element
 	 * @return a {@link MergedAnnotations} instance containing the element's
 	 * annotations
+	 *
+	 * 创建一个新的 MergedAnnotations 实例，其中包含来自指定元素的所有注解和元注解。结果实例将不包含任何继承的注解。如果还希望包含这些内容，则应将 from(AnnotatedElement, SearchStrategy) 与适当的 SearchStrategy 一起使用。
+	 * @return 包含元素注解的 MergedAnnotations 实例
 	 */
 	static MergedAnnotations from(AnnotatedElement element) {
 		return from(element, SearchStrategy.DIRECT);
@@ -300,6 +305,9 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
 	 * @param searchStrategy the search strategy to use
 	 * @return a {@link MergedAnnotations} instance containing the merged
 	 * element annotations
+	 *
+	 * 创建一个新的 MergedAnnotations 实例，其中包含来自指定元素和相关继承元素（取决于 SearchStrategy）的所有注解和元注解。
+	 * @return 包含合并元素注解的 MergedAnnotations 实例
 	 */
 	static MergedAnnotations from(AnnotatedElement element, SearchStrategy searchStrategy) {
 		return from(element, searchStrategy, RepeatableContainers.standardRepeatables());
@@ -315,6 +323,9 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
 	 * the element annotations or the meta-annotations
 	 * @return a {@link MergedAnnotations} instance containing the merged
 	 * element annotations
+	 *
+	 * 创建一个新的 MergedAnnotations 实例，其中包含来自指定元素和相关继承元素（取决于 SearchStrategy）的所有注解和元注解。
+	 * @return 包含合并元素注解的 MergedAnnotations 实例
 	 */
 	static MergedAnnotations from(AnnotatedElement element, SearchStrategy searchStrategy,
 			RepeatableContainers repeatableContainers) {
@@ -334,6 +345,9 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
 	 * annotations considered
 	 * @return a {@link MergedAnnotations} instance containing the merged
 	 * element annotations
+	 *
+	 * 创建一个新的 MergedAnnotations 实例，其中包含来自指定元素和相关继承元素（取决于 SearchStrategy）的所有注解和元注解。
+	 * @return 包含合并元素注解的 MergedAnnotations 实例
 	 */
 	static MergedAnnotations from(AnnotatedElement element, SearchStrategy searchStrategy,
 			RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
@@ -435,6 +449,7 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
 		 * Find only directly declared annotations, without considering
 		 * {@link Inherited @Inherited} annotations and without searching
 		 * superclasses or implemented interfaces.
+		 * 仅查找直接声明的注解，不考虑 @Inherited 注解，也不搜索超类或已实现的接口。
 		 */
 		DIRECT,
 

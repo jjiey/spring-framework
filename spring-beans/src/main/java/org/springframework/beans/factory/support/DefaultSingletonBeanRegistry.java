@@ -42,24 +42,29 @@ import java.util.concurrent.ConcurrentHashMap;
  * {@link org.springframework.beans.factory.config.SingletonBeanRegistry}.
  * Allows for registering singleton instances that should be shared
  * for all callers of the registry, to be obtained via bean name.
+ * 共享 bean 实例的通用注册表，实现了 SingletonBeanRegistry。允许注册 应通过 bean 名称获取的，注册中心所有调用者共享的 单例实例。
  *
  * <p>Also supports registration of
  * {@link org.springframework.beans.factory.DisposableBean} instances,
  * (which might or might not correspond to registered singletons),
  * to be destroyed on shutdown of the registry. Dependencies between
  * beans can be registered to enforce an appropriate shutdown order.
+ * 也支持 DisposableBean 实例的注册（这可能与已注册的单例相对应），在注册表关闭时销毁。可以注册 bean 之间的依赖关系以强制执行合适的关闭顺序。
  *
  * <p>This class mainly serves as base class for
  * {@link org.springframework.beans.factory.BeanFactory} implementations,
  * factoring out the common management of singleton bean instances. Note that
  * the {@link org.springframework.beans.factory.config.ConfigurableBeanFactory}
  * interface extends the {@link SingletonBeanRegistry} interface.
+ * 此类主要用作 BeanFactory 实现的基类，从而排除了单例 bean 实例的常见管理。注意，ConfigurableBeanFactory 接口扩展了 SingletonBeanRegistry 接口。
  *
  * <p>Note that this class assumes neither a bean definition concept
  * nor a specific creation process for bean instances, in contrast to
  * {@link AbstractBeanFactory} and {@link DefaultListableBeanFactory}
  * (which inherit from it). Can alternatively also be used as a nested
  * helper to delegate to.
+ * in contrast to：与…形成对照
+ * 注意，与 AbstractBeanFactory 和 DefaultListableBeanFactory（继承自该类）相比，该类既不假定 bean definition 概念也不为 bean 实例指定创建过程。也可以用作委托的嵌套 helper。
  *
  * @author Juergen Hoeller
  * @since 2.0
@@ -201,6 +206,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
 		Assert.notNull(beanName, "Bean name must not be null");
+		// 这里以及 SingletonBeanRegistry(DefaultSingletonBeanRegistry)#registerSingleton 两处会 put singletonObjects。往 Spring Ioc 容器里面注册一个单例对象，没有生命周期管理。ConcurrentHashMap 多操作需要加锁
 		synchronized (this.singletonObjects) {
 			Object singletonObject = this.singletonObjects.get(beanName);
 			if (singletonObject == null) {
@@ -219,6 +225,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					this.suppressedExceptions = new LinkedHashSet<>();
 				}
 				try {
+					// 调用外面 lambda 中的 createBean()
 					singletonObject = singletonFactory.getObject();
 					newSingleton = true;
 				}

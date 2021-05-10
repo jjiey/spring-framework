@@ -16,16 +16,16 @@
 
 package org.springframework.core.annotation;
 
-import java.lang.annotation.Annotation;
-import java.lang.annotation.Repeatable;
-import java.lang.reflect.Method;
-import java.util.Map;
-
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
+
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Repeatable;
+import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * Strategy used to determine annotations that act as containers for other
@@ -95,6 +95,9 @@ public abstract class RepeatableContainers {
 	 * Create a {@link RepeatableContainers} instance that searches using Java's
 	 * {@link Repeatable @Repeatable} annotation.
 	 * @return a {@link RepeatableContainers} instance
+	 *
+	 * 创建一个 RepeatableContainers 实例，该实例使用 Java 的 @Repeatable 注解进行搜索。
+	 * @return RepeatableContainers 实例
 	 */
 	public static RepeatableContainers standardRepeatables() {
 		return StandardRepeatableContainers.INSTANCE;

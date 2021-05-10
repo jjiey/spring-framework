@@ -16,12 +16,12 @@
 
 package org.springframework.beans.factory;
 
-import java.lang.annotation.Annotation;
-import java.util.Map;
-
 import org.springframework.beans.BeansException;
 import org.springframework.core.ResolvableType;
 import org.springframework.lang.Nullable;
+
+import java.lang.annotation.Annotation;
+import java.util.Map;
 
 /**
  * Extension of the {@link BeanFactory} interface to be implemented by bean factories
@@ -29,11 +29,14 @@ import org.springframework.lang.Nullable;
  * by name one by one as requested by clients. BeanFactory implementations that
  * preload all their bean definitions (such as XML-based factories) may implement
  * this interface.
+ * BeanFactory 接口的扩展，由可以枚举其所有 bean 实例的 bean 工厂实现，而不是按照客户端的请求按名称一一尝试进行 bean 查找。预加载其所有 bd 的 BeanFactory 实现（例如基于 XML 的工厂）可以实现此接口。
  *
  * <p>If this is a {@link HierarchicalBeanFactory}, the return values will <i>not</i>
  * take any BeanFactory hierarchy into account, but will relate only to the beans
  * defined in the current factory. Use the {@link BeanFactoryUtils} helper class
  * to consider beans in ancestor factories too.
+ * take...into account：把…加以考虑，把…考虑进去
+ * 如果这是一个 HierarchicalBeanFactory，则返回值不会考虑任何 BeanFactory 层次，而是仅与当前工厂中定义的 bean 有关。也可以使用 BeanFactoryUtils 帮助类来考虑祖先工厂中的 bean。
  *
  * <p>The methods in this interface will just respect bean definitions of this factory.
  * They will ignore any singleton beans that have been registered by other means like
@@ -44,10 +47,12 @@ import org.springframework.lang.Nullable;
  * does allow transparent access to such special beans as well. However, in typical
  * scenarios, all beans will be defined by external bean definitions anyway, so most
  * applications don't need to worry about this differentiation.
+ * 该接口中的方法将仅遵守该工厂的 bean 定义。它们将忽略通过其他方式例如 ConfigurableBeanFactory 的 registerSingleton 方法注册的任何单例 bean，但 getBeanNamesOfType 和 getBeansOfType 除外，它们也将检查此类手动注册的单例。当然，BeanFactory 的 getBean 方法确实也允许透明(transparent)访问此类特殊 bean。但是，在典型情况下，无论如何，所有 bean 都将由外部 bean definition 来定义，因此大多数应用程序不必担心这种区别。
  *
  * <p><b>NOTE:</b> With the exception of {@code getBeanDefinitionCount}
  * and {@code containsBeanDefinition}, the methods in this interface
  * are not designed for frequent invocation. Implementations may be slow.
+ * 注意：除了 getBeanDefinitionCount 和 containsBeanDefinition 方法之外，此接口中的方法并非设计用于频繁调用。实现上可能很慢。
  *
  * @author Rod Johnson
  * @author Juergen Hoeller

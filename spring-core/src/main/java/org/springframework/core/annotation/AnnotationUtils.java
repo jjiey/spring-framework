@@ -16,6 +16,15 @@
 
 package org.springframework.core.annotation;
 
+import org.springframework.core.BridgeMethodResolver;
+import org.springframework.core.annotation.AnnotationTypeMapping.MirrorSets.MirrorSet;
+import org.springframework.core.annotation.MergedAnnotation.Adapt;
+import org.springframework.core.annotation.MergedAnnotations.SearchStrategy;
+import org.springframework.lang.Nullable;
+import org.springframework.util.ConcurrentReferenceHashMap;
+import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
@@ -29,15 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-
-import org.springframework.core.BridgeMethodResolver;
-import org.springframework.core.annotation.AnnotationTypeMapping.MirrorSets.MirrorSet;
-import org.springframework.core.annotation.MergedAnnotation.Adapt;
-import org.springframework.core.annotation.MergedAnnotations.SearchStrategy;
-import org.springframework.lang.Nullable;
-import org.springframework.util.ConcurrentReferenceHashMap;
-import org.springframework.util.ReflectionUtils;
-import org.springframework.util.StringUtils;
 
 /**
  * General utility methods for working with annotations, handling meta-annotations,
@@ -127,6 +127,10 @@ public abstract class AnnotationUtils {
 	 * @since 5.2
 	 * @see #isCandidateClass(Class, Class)
 	 * @see #isCandidateClass(Class, String)
+	 *
+	 * 推断给定的 class 是否适合携带指定的注释之一（在类型，方法或字段级别）。
+	 * @param clazz 内省的 class
+	 * @return 如果已知该类在任何级别上都没有此类注释，则返回 false；否则返回 true。如果返回 true，则调用者通常将执行完整的 方法/字段 内省。
 	 */
 	public static boolean isCandidateClass(Class<?> clazz, Collection<Class<? extends Annotation>> annotationTypes) {
 		for (Class<? extends Annotation> annotationType : annotationTypes) {
@@ -147,6 +151,9 @@ public abstract class AnnotationUtils {
 	 * if {@code true} is being returned here.
 	 * @since 5.2
 	 * @see #isCandidateClass(Class, String)
+	 *
+	 * 推断给定的 class 是否适合携带指定的注释（在类型，方法或字段级别）。
+	 * @return 如果已知该类在任何级别上都没有此类注释，则返回 false；否则返回 true。如果返回 true，则调用者通常将执行完整的 方法/字段 内省。
 	 */
 	public static boolean isCandidateClass(Class<?> clazz, Class<? extends Annotation> annotationType) {
 		return isCandidateClass(clazz, annotationType.getName());
@@ -162,11 +169,15 @@ public abstract class AnnotationUtils {
 	 * if {@code true} is being returned here.
 	 * @since 5.2
 	 * @see #isCandidateClass(Class, Class)
+	 *
+	 * 推断给定的 class 是否适合携带指定的注释（在类型，方法或字段级别）。
+	 * @return 如果已知该类在任何级别上都没有此类注释，则返回 false；否则返回 true。如果返回 true，则调用者通常将执行完整的 方法/字段 内省。
 	 */
 	public static boolean isCandidateClass(Class<?> clazz, String annotationName) {
 		if (annotationName.startsWith("java.")) {
 			return true;
 		}
+		// has plain Java annotations only：仅有简单的 Java 注解
 		if (AnnotationsScanner.hasPlainJavaAnnotationsOnly(clazz)) {
 			return false;
 		}

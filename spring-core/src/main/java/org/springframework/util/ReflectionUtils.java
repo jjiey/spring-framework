@@ -16,6 +16,8 @@
 
 package org.springframework.util;
 
+import org.springframework.lang.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -26,8 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.lang.Nullable;
 
 /**
  * Simple utility class for working with the reflection API and handling
@@ -316,6 +316,8 @@ public abstract class ReflectionUtils {
 	 * @throws IllegalStateException if introspection fails
 	 * @since 4.2
 	 * @see #doWithMethods
+	 *
+	 * 在给定类的所有匹配方法上执行给定的回调操作，如本地声明的或等效的方法（例如给定类在基于 Java 8 的接口上实现的默认方法）。
 	 */
 	public static void doWithLocalMethods(Class<?> clazz, MethodCallback mc) {
 		Method[] methods = getDeclaredMethods(clazz, false);
@@ -338,6 +340,9 @@ public abstract class ReflectionUtils {
 	 * @param mc the callback to invoke for each method
 	 * @throws IllegalStateException if introspection fails
 	 * @see #doWithMethods(Class, MethodCallback, MethodFilter)
+	 *
+	 * 在给定类和超类的所有匹配方法上执行给定的回调操作。
+	 * 除非被 MethodFilter 排除，否则在子类和超类上发生的相同名称的方法将出现两次。
 	 */
 	public static void doWithMethods(Class<?> clazz, MethodCallback mc) {
 		doWithMethods(clazz, mc, null);
@@ -352,6 +357,9 @@ public abstract class ReflectionUtils {
 	 * @param mc the callback to invoke for each method
 	 * @param mf the filter that determines the methods to apply the callback to
 	 * @throws IllegalStateException if introspection fails
+	 *
+	 * 在给定类和超类（或给定接口和超接口）的所有匹配方法上执行给定的回调操作。
+	 * 除非被指定的 MethodFilter 排除，否则在子类和超类上发生的相同名称的方法将出现两次。
 	 */
 	public static void doWithMethods(Class<?> clazz, MethodCallback mc, @Nullable MethodFilter mf) {
 		// Keep backing up the inheritance hierarchy.
@@ -661,6 +669,8 @@ public abstract class ReflectionUtils {
 	 * @throws IllegalStateException if introspection fails
 	 * @since 4.2
 	 * @see #doWithFields
+	 *
+	 * 在给定类中的所有 locally declared fields 上调用给定的回调。
 	 */
 	public static void doWithLocalFields(Class<?> clazz, FieldCallback fc) {
 		for (Field field : getDeclaredFields(clazz)) {
@@ -720,6 +730,8 @@ public abstract class ReflectionUtils {
 	 * @return the cached array of fields
 	 * @throws IllegalStateException if introspection fails
 	 * @see Class#getDeclaredFields()
+	 *
+	 * 此变体(variant)从本地缓存中检索 Class#getDeclaredFields()，以避免 JVM 的 SecurityManager 检查和防御性数组复制。
 	 */
 	private static Field[] getDeclaredFields(Class<?> clazz) {
 		Assert.notNull(clazz, "Class must not be null");

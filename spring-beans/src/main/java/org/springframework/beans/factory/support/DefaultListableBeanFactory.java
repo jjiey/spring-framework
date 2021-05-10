@@ -89,21 +89,25 @@ import java.util.stream.Stream;
  * Spring's default implementation of the {@link ConfigurableListableBeanFactory}
  * and {@link BeanDefinitionRegistry} interfaces: a full-fledged bean factory
  * based on bean definition metadata, extensible through post-processors.
+ * Spring 的 ConfigurableListableBeanFactory 和 BeanDefinitionRegistry 接口的默认实现：一个基于 bean definition 元数据的完全成熟的 bean 工厂，可以通过后置处理器进行扩展。
  *
  * <p>Typical usage is registering all bean definitions first (possibly read
  * from a bean definition file), before accessing beans. Bean lookup by name
  * is therefore an inexpensive operation in a local bean definition table,
  * operating on pre-resolved bean definition metadata objects.
+ * 典型用法是在访问 bean 之前先注册所有的 bean definition（可能从一个 bean definition 文件中读取）。因此，在本地 bean definition 表中按名称查找 bean 是一个廉价操作，用于对预解析的 bean definition 元数据对象进行操作。
  *
  * <p>Note that readers for specific bean definition formats are typically
  * implemented separately rather than as bean factory subclasses:
  * see for example {@link PropertiesBeanDefinitionReader} and
  * {@link org.springframework.beans.factory.xml.XmlBeanDefinitionReader}.
+ * 注意，特定 bean definition 格式的 reader 通常是单独实现的，而不是作为 bean factory 的子类实现的：参见例如 PropertiesBeanDefinitionReader 和 XmlBeanDefinitionReader。
  *
  * <p>For an alternative implementation of the
  * {@link org.springframework.beans.factory.ListableBeanFactory} interface,
  * have a look at {@link StaticListableBeanFactory}, which manages existing
  * bean instances rather than creating new ones based on bean definitions.
+ * 对于 ListableBeanFactory 接口的替代实现，请查看 StaticListableBeanFactory，它管理现有的 bean 实例，而不是基于 bean definition 创建新的 bean 实例。
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
@@ -882,6 +886,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			}
 		}
 
+		// 到此，BeanDefinition 已初变成 Spring Bean，开始逐一回调 SmartInitializingSingleton#afterSingletonsInstantiated。这个接口引入的目的：当任何一个对象 getBean() 后，它所依赖的对象也会被初始化，这样会出现一种情况就是可能会出现过早的初始化，比如这个场景，addBeanPostProcess() 方法调用之前（BeanPostProcess 加进来之前）有可能已经初始化了相关 bean，这时候出现一个问题就是没有经过 BeanPostProcess 的方法调用，可能初始化并不完整。所以当 bean 完全 ready 之后，可以通过实现该接口进行回调来帮助 bean 进行完整的初始化，确保 bean 初始化行为正常，而不是在早期完成初始化时可能达到一些不确定的状态
 		// Trigger post-initialization callback for all applicable beans...
 		for (String beanName : beanNames) {
 			Object singletonInstance = getSingleton(beanName);
@@ -924,6 +929,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 		BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);
 		if (existingDefinition != null) {
+			// spring boot 2.1 之后可以设置是否允许重复定义（默认为 true）
 			if (!isAllowBeanDefinitionOverriding()) {
 				throw new BeanDefinitionOverrideException(beanName, beanDefinition, existingDefinition);
 			}
@@ -935,6 +941,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 							existingDefinition + "] with [" + beanDefinition + "]");
 				}
 			}
+			// 如果两个相同名字的 bd 不相同，输出警告（debug）
 			else if (!beanDefinition.equals(existingDefinition)) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Overriding bean definition for bean '" + beanName +
@@ -952,10 +959,13 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			this.beanDefinitionMap.put(beanName, beanDefinition);
 		}
 		else {
+			// 这个 bean 是否已经开始创建了
 			if (hasBeanCreationStarted()) {
+				// 上面的 put 不用加锁，问题不大，但是这里必须加锁，因为一个 bean 正在创建中，不加锁会影响到它
 				// Cannot modify startup-time collection elements anymore (for stable iteration)
 				synchronized (this.beanDefinitionMap) {
 					this.beanDefinitionMap.put(beanName, beanDefinition);
+					// beanDefinitionNames 这里可以用来保证注册顺序（beanDefinitionMap 不保证顺序）
 					List<String> updatedDefinitions = new ArrayList<>(this.beanDefinitionNames.size() + 1);
 					updatedDefinitions.addAll(this.beanDefinitionNames);
 					updatedDefinitions.add(beanName);
@@ -1227,8 +1237,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			}
 
 			Class<?> type = descriptor.getDependencyType();
-			// todo 获取自动绑定候选对象处理器 autowireCandidateResolver
-			// 如果是 @Value("${xxx}")，这里会取出来 ${xxx}
+			// 获取自动绑定候选对象处理器 autowireCandidateResolver，例如，如果是 @Value("${xxx}")，这里会取出来 ${xxx}
 			Object value = getAutowireCandidateResolver().getSuggestedValue(descriptor);
 			if (value != null) {
 				if (value instanceof String) {
@@ -1556,15 +1565,17 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	@Nullable
 	protected String determineAutowireCandidate(Map<String, Object> candidates, DependencyDescriptor descriptor) {
 		Class<?> requiredType = descriptor.getDependencyType();
-		// 找到 primary 的 bean 名称
+		// primary 标注的 bean 名称
 		String primaryCandidate = determinePrimaryCandidate(candidates, requiredType);
 		if (primaryCandidate != null) {
 			return primaryCandidate;
 		}
+		// 如果指定了优先级，获取具有最高优先级的候选者名称
 		String priorityCandidate = determineHighestPriorityCandidate(candidates, requiredType);
 		if (priorityCandidate != null) {
 			return priorityCandidate;
 		}
+		// 降级方案 / 兜底方案：找名称（字段依赖描述符里的字段名称）查找
 		// Fallback
 		for (Map.Entry<String, Object> entry : candidates.entrySet()) {
 			String candidateName = entry.getKey();
@@ -1623,6 +1634,10 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	 * @return the name of the candidate with the highest priority,
 	 * or {@code null} if none found
 	 * @see #getPriority(Object)
+	 *
+	 * determine highest priority candidate：推断具有最高优先级的候选者
+	 * 在给定的 bean 集合中推断具有最高优先级的候选者。基于 @javax.annotation.Priority。根据相关 org.springframework.core.Ordered 接口的定义，最低值具有最高优先级。
+	 * @return 具有最高优先级的候选者的名称，如果找不到则返回 null
 	 */
 	@Nullable
 	protected String determineHighestPriorityCandidate(Map<String, Object> candidates, Class<?> requiredType) {

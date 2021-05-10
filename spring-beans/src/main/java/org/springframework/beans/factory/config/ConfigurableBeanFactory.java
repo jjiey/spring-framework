@@ -16,9 +16,6 @@
 
 package org.springframework.beans.factory.config;
 
-import java.beans.PropertyEditor;
-import java.security.AccessControlContext;
-
 import org.springframework.beans.PropertyEditorRegistrar;
 import org.springframework.beans.PropertyEditorRegistry;
 import org.springframework.beans.TypeConverter;
@@ -30,17 +27,25 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringValueResolver;
 
+import java.beans.PropertyEditor;
+import java.security.AccessControlContext;
+
 /**
  * Configuration interface to be implemented by most bean factories. Provides
  * facilities to configure a bean factory, in addition to the bean factory
  * client methods in the {@link org.springframework.beans.factory.BeanFactory}
  * interface.
+ * in addition to：除...之外
+ * 大多数 bean factory 将实现的配置接口。除了 BeanFactory 接口中的 bean 工厂客户端方法之外，还提供了用于配置 bean 工厂的工具(facilities)。
  *
  * <p>This bean factory interface is not meant to be used in normal application
  * code: Stick to {@link org.springframework.beans.factory.BeanFactory} or
  * {@link org.springframework.beans.factory.ListableBeanFactory} for typical
  * needs. This extended interface is just meant to allow for framework-internal
  * plug'n'play and for special access to bean factory configuration methods.
+ * be meant to：打算；有意要
+ * plug'n'play(plug and play)：即插即用
+ * 此接口并不打算被常规应用程序代码使用：对于典型的使用需要，应该坚持(stick to) BeanFactory 或 ListableBeanFactory。此扩展接口仅用于允许在框架内部即插即用，并允许对 bean 工厂配置方法的特殊访问。
  *
  * @author Juergen Hoeller
  * @since 03.11.2003
@@ -323,6 +328,9 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
 	 * @return a (potentially merged) BeanDefinition for the given bean
 	 * @throws NoSuchBeanDefinitionException if there is no bean definition with the given name
 	 * @since 2.5
+	 *
+	 * 返回一个被合并过的 BeanDefinition
+	 * 如有必要，将子 bean definition 与其 parent 合并（只有一个 parent 意味着这里可能是个递归的调用）
 	 */
 	BeanDefinition getMergedBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
 

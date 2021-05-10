@@ -16,6 +16,8 @@
 
 package org.springframework.util;
 
+import org.springframework.lang.Nullable;
+
 import java.beans.Introspector;
 import java.io.Closeable;
 import java.io.Externalizable;
@@ -39,8 +41,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-
-import org.springframework.lang.Nullable;
 
 /**
  * Miscellaneous {@code java.lang.Class} utility methods.
@@ -1242,6 +1242,8 @@ public abstract class ClassUtils {
 	 * @return the specific target method, or the original method if the
 	 * {@code targetClass} does not implement it
 	 * @see #getInterfaceMethodIfPossible
+	 *
+	 * 给定一个可能来自接口的方法以及当前反射调用中使用的目标类，如果有一个，则找到相应的目标方法。例如，该方法可能是 IFoo.bar()，而目标类可能是 DefaultFoo。在这种情况下，方法可能是 DefaultFoo.bar()。这样可以找到该方法的属性。
 	 */
 	public static Method getMostSpecificMethod(Method method, @Nullable Class<?> targetClass) {
 		if (targetClass != null && targetClass != method.getDeclaringClass() && isOverridable(method, targetClass)) {

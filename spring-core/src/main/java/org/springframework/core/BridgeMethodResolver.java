@@ -16,18 +16,18 @@
 
 package org.springframework.core;
 
+import org.springframework.lang.Nullable;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.ConcurrentReferenceHashMap;
+import org.springframework.util.ReflectionUtils;
+import org.springframework.util.ReflectionUtils.MethodFilter;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.lang.Nullable;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.ConcurrentReferenceHashMap;
-import org.springframework.util.ReflectionUtils;
-import org.springframework.util.ReflectionUtils.MethodFilter;
 
 /**
  * Helper for resolving synthetic {@link Method#isBridge bridge Methods} to the
@@ -64,6 +64,12 @@ public final class BridgeMethodResolver {
 	 * @param bridgeMethod the method to introspect
 	 * @return the original method (either the bridged method or the passed-in method
 	 * if no more specific one could be found)
+	 *
+	 * 找到所提供的桥接方法(bridge Method)的原始方法。可以安全地在非桥接方法实例中传递此方法。在这种情况下，提供的方法实例将直接返回给调用方。在调用此方法之前，调用者不需要检查桥接。
+	 * @return 原始方法（如果找不到更具体的方法，则为桥接方法或传入的方法）
+	 *
+	 *
+	 * 桥接方法是 JDK 1.5 引入泛型后，为了使 Java 的泛型方法生成的字节码和 1.5 版本前的字节码相兼容，由编译器自动生成的方法。可以通过 Method.isBridge() 方法来判断一个方法是否是桥接方法，在字节码中桥接方法会被标记为 ACC_BRIDGE 和 ACC_SYNTHETIC，其中 ACC_BRIDGE 用于说明这个方法是由编译生成的桥接方法，ACC_SYNTHETIC 说明这个方法是由编译器生成，并且不会在源代码中出现。
 	 */
 	public static Method findBridgedMethod(Method bridgeMethod) {
 		if (!bridgeMethod.isBridge()) {
@@ -229,6 +235,10 @@ public final class BridgeMethodResolver {
 	 * introduced in Java 6 to fix https://bugs.java.com/view_bug.do?bug_id=6342411.
 	 * See also https://stas-blogspot.blogspot.com/2010/03/java-bridge-methods-explained.html
 	 * @return whether signatures match as described
+	 *
+	 * visibility：可见性
+	 * 比较桥接方法及其桥接的方法的签名。如果参数和返回类型相同，则这是 Java 6 中引入的 'visibility' 桥接方法，用于修复...
+	 * @return 签名是否与描述的相符
 	 */
 	public static boolean isVisibilityBridgeMethodPair(Method bridgeMethod, Method bridgedMethod) {
 		if (bridgeMethod == bridgedMethod) {

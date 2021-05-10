@@ -654,6 +654,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver(beanFactory.getBeanClassLoader()));
 		beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
 
+		// ApplicationContextAwareProcessor 里面包含 EnvironmentAware 及其之后的 Aware 回调（该类不是 public 的，也就意味着 BeanFactory 是无法执行 EnvironmentAware 及其之后的 Aware 回调的）
 		// Configure the bean factory with context callbacks.
 		beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
 		beanFactory.ignoreDependencyInterface(EnvironmentAware.class);

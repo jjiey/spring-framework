@@ -82,6 +82,7 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
 
 	/**
 	 * 嵌套层次
+	 * 比如 Option<?> 包裹的对象
 	 */
 	private int nestingLevel = 1;
 
@@ -376,6 +377,8 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
 	 * <p>This method does not actually try to retrieve the parameter name at
 	 * this point; it just allows discovery to happen when the application calls
 	 * {@link #getDependencyName()} (if ever).
+	 *
+	 * 初始化底层方法参数（如果有）的参数名称发现。该方法此时实际上并未尝试检索参数名称；它仅允许发现发生在应用程序调用 getDependencyName() 时（如果有的话）。
 	 */
 	public void initParameterNameDiscovery(@Nullable ParameterNameDiscoverer parameterNameDiscoverer) {
 		if (this.methodParameter != null) {

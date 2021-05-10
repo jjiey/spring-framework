@@ -23,8 +23,11 @@ import org.springframework.lang.Nullable;
  * Can be implemented by {@link org.springframework.beans.factory.BeanFactory}
  * implementations in order to expose their singleton management facility
  * in a uniform manner.
+ * in order to：为了
+ * 为共享 bean 实例定义注册表的接口。可以由 BeanFactory 的实现类来实现，为了以统一的方式暴露其单例管理设施。
  *
  * <p>The {@link ConfigurableBeanFactory} interface extends this interface.
+ * ConfigurableBeanFactory 接口继承了该接口
  *
  * @author Juergen Hoeller
  * @since 2.0
@@ -129,6 +132,8 @@ public interface SingletonBeanRegistry {
 	 * Return the singleton mutex used by this registry (for external collaborators).
 	 * @return the mutex object (never {@code null})
 	 * @since 4.2
+	 *
+	 * 返回此注册表使用的单例互斥体(mutex)（对于外部合作者(collaborators)）
 	 */
 	Object getSingletonMutex();
 

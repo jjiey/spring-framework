@@ -226,6 +226,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 		List<LifecycleElement> destroyMethods = new ArrayList<>();
 		Class<?> targetClass = clazz;
 
+		// 递归查找该类以及父类以及父类的父类...
 		do {
 			// 根据 @PostConstruct 构建 LifecycleElement。其实是构建 method 属性，因为 @PostConstruct 只能标注在方法上
 			final List<LifecycleElement> currInitMethods = new ArrayList<>();
@@ -233,6 +234,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 			final List<LifecycleElement> currDestroyMethods = new ArrayList<>();
 
 			ReflectionUtils.doWithLocalMethods(targetClass, method -> {
+				// 将 @PostConstruct 注解的方法包装为 LifecycleElement
 				if (this.initAnnotationType != null && method.isAnnotationPresent(this.initAnnotationType)) {
 					LifecycleElement element = new LifecycleElement(method);
 					currInitMethods.add(element);
@@ -240,6 +242,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 						logger.trace("Found init method on class [" + clazz.getName() + "]: " + method);
 					}
 				}
+				// 将 @PreDestroy 注解的方法包装为 LifecycleElement
 				if (this.destroyAnnotationType != null && method.isAnnotationPresent(this.destroyAnnotationType)) {
 					currDestroyMethods.add(new LifecycleElement(method));
 					if (logger.isTraceEnabled()) {

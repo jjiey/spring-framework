@@ -1,4 +1,3 @@
-
 package org.thinking.in.spring.ioc.domain;
 
 import lombok.Data;

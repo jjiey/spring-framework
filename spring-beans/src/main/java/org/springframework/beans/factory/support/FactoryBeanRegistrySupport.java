@@ -16,6 +16,13 @@
 
 package org.springframework.beans.factory.support;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.BeanCurrentlyInCreationException;
+import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.FactoryBeanNotInitializedException;
+import org.springframework.lang.Nullable;
+
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -24,19 +31,14 @@ import java.security.PrivilegedExceptionAction;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.beans.factory.BeanCurrentlyInCreationException;
-import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.FactoryBeanNotInitializedException;
-import org.springframework.lang.Nullable;
-
 /**
  * Support base class for singleton registries which need to handle
  * {@link org.springframework.beans.factory.FactoryBean} instances,
  * integrated with {@link DefaultSingletonBeanRegistry}'s singleton management.
+ * 支持需要处理 FactoryBean 实例的单例注册的基类，与 DefaultSingletonBeanRegistry 的单例管理集成。
  *
  * <p>Serves as base class for {@link AbstractBeanFactory}.
+ * 用作 AbstractBeanFactory 的基类。
  *
  * @author Juergen Hoeller
  * @since 2.5.1
@@ -221,6 +223,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 
 	/**
 	 * Overridden to clear the FactoryBean object cache as well.
+	 * Overridden 以清除 FactoryBean 对象缓存。
 	 */
 	@Override
 	protected void removeSingleton(String beanName) {
@@ -232,6 +235,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 
 	/**
 	 * Overridden to clear the FactoryBean object cache as well.
+	 * Overridden 以清除 FactoryBean 对象缓存。
 	 */
 	@Override
 	protected void clearSingletonCache() {

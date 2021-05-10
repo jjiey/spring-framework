@@ -16,21 +16,23 @@
 
 package org.springframework.beans.factory;
 
+import org.springframework.beans.BeansException;
+import org.springframework.lang.Nullable;
+
 import java.util.Iterator;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import org.springframework.beans.BeansException;
-import org.springframework.lang.Nullable;
-
 /**
  * A variant of {@link ObjectFactory} designed specifically for injection points,
  * allowing for programmatic optionality and lenient not-unique handling.
+ * ObjectFactory 的一种变体，专门为注入点设计，允许有纲领性的可选性和宽大的非唯一处理。 。。。这咋翻译？。。。
  *
  * <p>As of 5.1, this interface extends {@link Iterable} and provides {@link Stream}
  * support. It can be therefore be used in {@code for} loops, provides {@link #forEach}
  * iteration and allows for collection-style {@link #stream} access.
+ * 从 5.1 版本开始，此接口扩展了 Iterable，并提供了流式支持。因此，可以在 for 循环中使用它，提供 forEach 迭代，并允许使用集合样式的 stream 访问。
  *
  * @author Juergen Hoeller
  * @since 4.3

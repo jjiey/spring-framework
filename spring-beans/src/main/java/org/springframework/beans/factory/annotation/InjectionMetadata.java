@@ -92,6 +92,7 @@ public class InjectionMetadata {
 		Set<InjectedElement> checkedElements = new LinkedHashSet<>(this.injectedElements.size());
 		for (InjectedElement element : this.injectedElements) {
 			Member member = element.getMember();
+			// is externally managed config member：是外部管理的配置 member
 			if (!beanDefinition.isExternallyManagedConfigMember(member)) {
 				beanDefinition.registerExternallyManagedConfigMember(member);
 				checkedElements.add(element);
@@ -150,6 +151,8 @@ public class InjectionMetadata {
 	 * @param metadata the existing metadata instance
 	 * @param clazz the current target class
 	 * @return {@code true} indicating a refresh, {@code false} otherwise
+	 *
+	 * 检查是否需要刷新给定的注入元数据。
 	 */
 	public static boolean needsRefresh(@Nullable InjectionMetadata metadata, Class<?> clazz) {
 		return (metadata == null || metadata.targetClass != clazz);
@@ -189,12 +192,15 @@ public class InjectionMetadata {
 
 		protected final Class<?> getResourceType() {
 			if (this.isField) {
+				// 如果是字段，返回字段类型
 				return ((Field) this.member).getType();
 			}
 			else if (this.pd != null) {
+				// 如果是属性描述符。返回属性类型
 				return this.pd.getPropertyType();
 			}
 			else {
+				// 如果是方法，返回 parameterTypes[0]，这是因为 @Resource 注解的方法必须是一个单参数的方法
 				return ((Method) this.member).getParameterTypes()[0];
 			}
 		}
@@ -225,7 +231,9 @@ public class InjectionMetadata {
 
 			if (this.isField) {
 				Field field = (Field) this.member;
+				// 可访问性调成可访问的，因为要注入的属性可能是 private
 				ReflectionUtils.makeAccessible(field);
+				// 通过反射注入
 				field.set(target, getResourceToInject(target, requestingBeanName));
 			}
 			else {

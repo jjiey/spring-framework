@@ -43,6 +43,11 @@ public interface MergedBeanDefinitionPostProcessor extends BeanPostProcessor {
 	 * @param beanType the actual type of the managed bean instance
 	 * @param beanName the name of the bean
 	 * @see AbstractAutowireCapableBeanFactory#applyMergedBeanDefinitionPostProcessors
+	 *
+	 * 后置处理，对指定 bean 合并给定的 bean definition。
+	 * @param beanDefinition 合并 bean definition 的 bean
+	 * @param beanType 管理 bean 实例的实际类型
+	 * @param beanName bean 名称
 	 */
 	void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName);
 

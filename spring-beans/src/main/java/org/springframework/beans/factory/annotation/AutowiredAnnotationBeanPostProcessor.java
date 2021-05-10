@@ -471,11 +471,12 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		List<InjectionMetadata.InjectedElement> elements = new ArrayList<>();
 		Class<?> targetClass = clazz;
 
+		// 递归查找该类以及父类以及父类的父类...
 		do {
-			// AutowiredFieldElement / AutowiredMethodElement
+			// @Autowired 标注的字段 AutowiredFieldElement / @Autowired 标注的方法 AutowiredMethodElement
 			final List<InjectionMetadata.InjectedElement> currElements = new ArrayList<>();
 
-			// 递归查找该类父类以及父类的父类...里面所有加了 @Autowired 的字段
+			// 遍历类里所有加了 @Autowired 的字段
 			ReflectionUtils.doWithLocalFields(targetClass, field -> {
 				MergedAnnotation<?> ann = findAutowiredAnnotation(field);
 				if (ann != null) {
@@ -492,9 +493,11 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 				}
 			});
 
-			// 递归查找该类父类以及父类的父类...里面所有加了 @Autowired 的方法
+			// 遍历类里所有加了 @Autowired 的方法
 			ReflectionUtils.doWithLocalMethods(targetClass, method -> {
+				// 桥接方法(bridge Method)的原始方法
 				Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
+				// visibility：可见性
 				if (!BridgeMethodResolver.isVisibilityBridgeMethodPair(method, bridgedMethod)) {
 					return;
 				}
@@ -507,13 +510,16 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 						}
 						return;
 					}
+					// @Autowired 注解的方法必须有参数
 					if (method.getParameterCount() == 0) {
 						if (logger.isInfoEnabled()) {
 							logger.info("Autowired annotation should only be used on methods with parameters: " +
 									method);
 						}
 					}
+					// @Autowired 中 required 的值
 					boolean required = determineRequiredStatus(ann);
+					// 该方法的 JavaBeans PropertyDescriptor
 					PropertyDescriptor pd = BeanUtils.findPropertyForMethod(bridgedMethod, clazz);
 					currElements.add(new AutowiredMethodElement(method, required, pd));
 				}
@@ -527,6 +533,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		return InjectionMetadata.forElements(elements, clazz);
 	}
 
+	// AccessibleObject 类是 Field，Method 和 Constructor 对象的基类
 	@Nullable
 	private MergedAnnotation<?> findAutowiredAnnotation(AccessibleObject ao) {
 		MergedAnnotations annotations = MergedAnnotations.from(ao);
@@ -619,6 +626,8 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 
 	/**
 	 * Class representing injection information about an annotated field.
+	 *
+	 * @Autowired 注解的字段会包装为 AutowiredFieldElement
 	 */
 	private class AutowiredFieldElement extends InjectionMetadata.InjectedElement {
 
@@ -648,7 +657,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 				value = resolvedCachedArgument(beanName, this.cachedFieldValue);
 			}
 			else {
-				// 第二个参数是 @Autowired required 的值
+				// 字段依赖描述符：第二个参数是 @Autowired required 的值
 				DependencyDescriptor desc = new DependencyDescriptor(field, this.required);
 				desc.setContainingClass(bean.getClass());
 				Set<String> autowiredBeanNames = new LinkedHashSet<>(1);
@@ -694,6 +703,8 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 
 	/**
 	 * Class representing injection information about an annotated method.
+	 *
+	 * @Autowired 注解的方法会包装为 AutowiredMethodElement
 	 */
 	private class AutowiredMethodElement extends InjectionMetadata.InjectedElement {
 
@@ -733,6 +744,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 					currDesc.setContainingClass(bean.getClass());
 					descriptors[i] = currDesc;
 					try {
+						// 解析依赖：按照 @Autowired 注解的方法参数遍历，一个一个参数解析依赖
 						Object arg = beanFactory.resolveDependency(currDesc, beanName, autowiredBeans, typeConverter);
 						if (arg == null && !this.required) {
 							arguments = null;
@@ -772,7 +784,9 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 			}
 			if (arguments != null) {
 				try {
+					// 可访问性调成可访问的，因为要注入的方法可能是 private
 					ReflectionUtils.makeAccessible(method);
+					// 通过反射注入
 					method.invoke(bean, arguments);
 				}
 				catch (InvocationTargetException ex) {
