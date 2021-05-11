@@ -1690,6 +1690,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			if (mpvs.isConverted()) {
 				// Shortcut: use the pre-converted values as-is.
 				try {
+					// 涉及类型转换
 					bw.setPropertyValues(mpvs);
 					return;
 				}

@@ -30,7 +30,7 @@
 	<!-- 合并后 GenericBeanDefinition 变成 RootBeanDefinition，并且覆盖 parent 相关配置-->
 	<!-- 这里：1.primary = true; 2.增加了一个 address 属性 -->
 	<bean id="superUser" class="org.thinking.in.spring.ioc.domain.SuperUser" parent="user"
-		  >
+		  primary="true">
 		<property name="address" value="北京"/>
 	</bean>
 
