@@ -6,8 +6,6 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.thinking.in.spring.ioc.domain.User;
 
-import java.util.Map;
-
 /**
  * 注解驱动的依赖注入处理过程
  *
@@ -28,8 +26,8 @@ public class AnnotationDependencyInjectionResolutionDemo2 {
 	// 通过类型（User.class）
 	// 字段名称（"user"）
 	// 是否首要（primary = true)
-	@Autowired          // 依赖查找（处理）
-	private User user;
+//	@Autowired          // 依赖查找（处理）
+//	private User user;
 
 	/**
 	 * DependencyDescriptor.getDependencyType() 返回 java.util.Map 类
@@ -37,7 +35,9 @@ public class AnnotationDependencyInjectionResolutionDemo2 {
 	 * 主要源码在 resolveMultipleBeans()
 	 */
 	@Autowired          // 集合类型依赖注入
-	private Map<String, User> users; // user superUser
+//	private Map<String, User> users; // user superUser
+	private User[] users;
+
 
 	public static void main(String[] args) {
 
@@ -59,9 +59,9 @@ public class AnnotationDependencyInjectionResolutionDemo2 {
 	AnnotationDependencyInjectionResolutionDemo2 demo = applicationContext.getBean(AnnotationDependencyInjectionResolutionDemo2.class);
 
 		// 期待输出 superUser Bean
-		System.out.println("demo.user = " + demo.user);
+//		System.out.println("demo.user = " + demo.user);
 		// 期待输出 user superUser
-		System.out.println("demo.users = " + demo.users);
+		System.out.println("demo.users = " + demo.users.length);
 
 		// 显示地关闭 Spring 应用上下文
 		applicationContext.close();

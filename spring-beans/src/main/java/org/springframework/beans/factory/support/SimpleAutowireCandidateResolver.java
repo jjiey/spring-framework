@@ -24,6 +24,8 @@ import org.springframework.lang.Nullable;
  * {@link AutowireCandidateResolver} implementation to use when no annotation
  * support is available. This implementation checks the bean definition only.
  *
+ * 这个类相当于一个简单的适配器，现在已经没啥用了。。
+ *
  * @author Mark Fisher
  * @author Juergen Hoeller
  * @since 2.5

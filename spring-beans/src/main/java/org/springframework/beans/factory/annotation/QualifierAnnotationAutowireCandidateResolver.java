@@ -16,13 +16,6 @@
 
 package org.springframework.beans.factory.annotation;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
 import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.beans.TypeConverter;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -42,12 +35,21 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * {@link AutowireCandidateResolver} implementation that matches bean definition qualifiers
  * against {@link Qualifier qualifier annotations} on the field or parameter to be autowired.
  * Also supports suggested expression values through a {@link Value value} annotation.
+ * AutowireCandidateResolver 的实现，将 bean definition 限定符与要自动装配的字段或参数上的 @Qualifier 进行匹配。还通过 @Value 支持建议的表达式值。
  *
  * <p>Also supports JSR-330's {@link javax.inject.Qualifier} annotation, if available.
+ * 还支持 JSR-330 的 javax.inject.Qualifier 注解（如果可用）。
  *
  * @author Mark Fisher
  * @author Juergen Hoeller
@@ -141,6 +143,8 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 	 * fallback to match against the bean name or an alias if a qualifier or
 	 * attribute does not match.
 	 * @see Qualifier
+	 *
+	 * 先校验字段上的 @Qualifier 注解，如果没有则校验方法上的 @Qualifier 注解
 	 */
 	@Override
 	public boolean isAutowireCandidate(BeanDefinitionHolder bdHolder, DependencyDescriptor descriptor) {

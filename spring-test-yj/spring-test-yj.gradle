@@ -20,4 +20,6 @@ dependencies {
     implementation group: 'javax.inject', name: 'javax.inject', version: '1'
     // SnakeYAML   org.springframework.beans.factory.config.YamlProcessor
     implementation group: 'org.yaml', name: 'snakeyaml', version: '1.18'
+    compile(project(":spring-aop"))
+    compile group: 'org.aspectj', name: 'aspectjrt', version: '1.9.6'
 }

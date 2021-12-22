@@ -157,6 +157,8 @@ public interface ObjectProvider<T> extends ObjectFactory<T>, Iterable<T> {
 	 * @since 5.1
 	 * @see #iterator()
 	 * @see #orderedStream()
+	 *
+	 * 在所有匹配的对象实例上返回顺序的 Stream，没有特定的顺序保证（但通常按注册顺序）。
 	 */
 	default Stream<T> stream() {
 		throw new UnsupportedOperationException("Multi element access not supported");
@@ -173,6 +175,9 @@ public interface ObjectProvider<T> extends ObjectFactory<T>, Iterable<T> {
 	 * @since 5.1
 	 * @see #stream()
 	 * @see org.springframework.core.OrderComparator
+	 *
+	 * 在所有匹配的对象实例上返回顺序的 Stream，根据工厂的通用排序比较器进行了预排序。
+	 * 在标准 Spring application context 中，这将根据 org.springframework.core.Ordered 约定进行排序，在基于注解配置的情况下，还应考虑 org.springframework.core.annotation.Order 注解，类似于 list/array 类型的多元素注入点。
 	 */
 	default Stream<T> orderedStream() {
 		throw new UnsupportedOperationException("Ordered element access not supported");

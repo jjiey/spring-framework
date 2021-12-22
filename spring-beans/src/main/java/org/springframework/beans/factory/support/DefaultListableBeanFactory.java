@@ -1332,6 +1332,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		final Class<?> type = descriptor.getDependencyType();
 
 		if (descriptor instanceof StreamDependencyDescriptor) {
+			// StreamDependencyDescriptor 为 ObjectProvider#stream ObjectProvider#orderedStream 使用，最终返回 Stream<Object>
 			Map<String, Object> matchingBeans = findAutowireCandidates(beanName, type, descriptor);
 			if (autowiredBeanNames != null) {
 				autowiredBeanNames.addAll(matchingBeans.keySet());
@@ -1881,6 +1882,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 	/**
 	 * A dependency descriptor marker for stream access to multiple elements.
+	 * 用于访问多个元素的流的依赖描述符标记。
 	 */
 	private static class StreamDependencyDescriptor extends DependencyDescriptor {
 

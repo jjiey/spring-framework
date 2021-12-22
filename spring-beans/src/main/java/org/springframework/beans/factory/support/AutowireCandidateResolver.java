@@ -46,7 +46,7 @@ public interface AutowireCandidateResolver {
 	 * @param descriptor 目标方法参数或字段的描述符
 	 * @return bean definition 是否符合自动装配候选条件
 	 *
-	 * bean definition 的默认值都是 true，见 org.springframework.beans.factory.support.AbstractBeanDefinition#autowireCandidate
+	 * bean definition 的 autowireCandidate 默认值都是 true，见 org.springframework.beans.factory.support.AbstractBeanDefinition#autowireCandidate
 	 */
 	default boolean isAutowireCandidate(BeanDefinitionHolder bdHolder, DependencyDescriptor descriptor) {
 		return bdHolder.getBeanDefinition().isAutowireCandidate();
@@ -61,7 +61,7 @@ public interface AutowireCandidateResolver {
 	 * @since 5.0
 	 * @see DependencyDescriptor#isRequired()
 	 *
-	 * 推断是否确实需要给定的描述符。默认实现...
+	 * 推断是否必须注入给定的描述符。默认实现...
 	 * @param descriptor 目标方法参数或字段的描述符
 	 * @return 描述符是否被标记为必需，或者是否可能以其他方式（例如通过参数注解）指示非必需状态
 	 */
@@ -78,6 +78,11 @@ public interface AutowireCandidateResolver {
 	 * status beyond the type match
 	 * @since 5.1
 	 * @see org.springframework.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver#hasQualifier
+	 *
+	 * qualifier：限定符
+	 * 推断给定的描述符是否声明了类型之外的限定符（通常-但不一定-一种特定的注解(即通常可能是以注解的形式)）。默认实现返回 false。
+	 * @param descriptor 目标方法参数或字段的描述符
+	 * @return 描述符是否声明了限定符，将候选状态缩小到类型匹配之外
 	 */
 	default boolean hasQualifier(DependencyDescriptor descriptor) {
 		return false;
@@ -90,6 +95,12 @@ public interface AutowireCandidateResolver {
 	 * @return the value suggested (typically an expression String),
 	 * or {@code null} if none found
 	 * @since 3.0
+	 *
+	 * 推断给定的描述符是否有建议的默认值。默认实现简单返回 null。
+	 * @param descriptor 目标方法参数或字段的描述符
+	 * @return 建议的值（通常为字符串的表达式），如果没有则为 null
+	 *
+	 * @Qualifier / @Value 时会返回
 	 */
 	@Nullable
 	default Object getSuggestedValue(DependencyDescriptor descriptor) {
@@ -105,6 +116,11 @@ public interface AutowireCandidateResolver {
 	 * @return the lazy resolution proxy for the actual dependency target,
 	 * or {@code null} if straight resolution is to be performed
 	 * @since 4.0
+	 *
+	 * 如果注入点需要，则为实际依赖目标的延迟解析构建代理。默认实现简单返回 null。
+	 * @param descriptor 目标方法参数或字段的描述符
+	 * @param beanName 包含注入点的 bean name
+	 * @return 实际依赖目标的 lazy 解析代理，如果执行直接解析则返回 null
 	 */
 	@Nullable
 	default Object getLazyResolutionProxyIfNecessary(DependencyDescriptor descriptor, @Nullable String beanName) {

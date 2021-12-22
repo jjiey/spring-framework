@@ -16,9 +16,6 @@
 
 package org.springframework.beans.factory.support;
 
-import java.lang.reflect.Method;
-import java.util.Properties;
-
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.FactoryBean;
@@ -30,14 +27,22 @@ import org.springframework.core.ResolvableType;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 
+import java.lang.reflect.Method;
+import java.util.Properties;
+
 /**
  * Basic {@link AutowireCandidateResolver} that performs a full generic type
  * match with the candidate's type if the dependency is declared as a generic type
  * (e.g. Repository&lt;Customer&gt;).
+ * 基本的 AutowireCandidateResolver，如果将依赖声明为通用类型，则与候选者的类型执行完全通用的类型匹配（例如 Repository<Customer>）。
  *
  * <p>This is the base class for
  * {@link org.springframework.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver},
  * providing an implementation all non-annotation-based resolution steps at this level.
+ * 这是 QualifierAnnotationAutowireCandidateResolver 的基类，在此级别上提供所有基于非注释的解析步骤的实现。
+ *
+ *
+ * 这个类只处理了 isAutowireCandidate#isAutowireCandidate 方法
  *
  * @author Juergen Hoeller
  * @since 4.0
@@ -91,6 +96,7 @@ public class GenericTypeAwareAutowireCandidateResolver extends SimpleAutowireCan
 			if (targetType == null) {
 				cacheType = true;
 				// First, check factory method return type, if applicable
+				// 首先，检查工厂方法的返回类型（如果适用）
 				targetType = getReturnTypeForFactoryMethod(rbd, descriptor);
 				if (targetType == null) {
 					RootBeanDefinition dbd = getResolvedDecoratedDefinition(rbd);
@@ -106,6 +112,7 @@ public class GenericTypeAwareAutowireCandidateResolver extends SimpleAutowireCan
 
 		if (targetType == null) {
 			// Regular case: straight bean instance, with BeanFactory available.
+			// 常规情况：是个 bean 实例，此时可以用 BeanFactory。
 			if (this.beanFactory != null) {
 				Class<?> beanType = this.beanFactory.getType(bdHolder.getBeanName());
 				if (beanType != null) {
@@ -114,6 +121,7 @@ public class GenericTypeAwareAutowireCandidateResolver extends SimpleAutowireCan
 			}
 			// Fallback: no BeanFactory set, or no type resolvable through it
 			// -> best-effort match against the target class if applicable.
+			// 降级方案：没有设置 BeanFactory，或者没有通过它解析的类型 -> 与目标类尽最大努力匹配（如果适用）。
 			if (targetType == null && rbd != null && rbd.hasBeanClass() && rbd.getFactoryMethodName() == null) {
 				Class<?> beanClass = rbd.getBeanClass();
 				if (!FactoryBean.class.isAssignableFrom(beanClass)) {

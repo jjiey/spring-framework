@@ -90,7 +90,7 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 * @see #postProcessBeforeInstantiation
 	 *
-	 * @return {@code true} bean 上的属性应该被设置；{@code false} 属性赋值(植入、填入)应该被跳过。正常的实现应返回{@code true}。返回{@code false} 也将阻止在此 bean 实例上调用任何后续的 InstantiationAwareBeanPostProcessor 实例(比如下面的两个方法)。
+	 * @return 如果 bean 中的属性应该被设置，则返回 true；如果应该跳过属性注入，则返回 false。正常的实现应返回 true。返回 false 也将阻止在此 bean 实例上调用任何后续的 InstantiationAwareBeanPostProcessor 实例(比如下面的两个方法)。
 	 */
 	default boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException {
 		return true;
