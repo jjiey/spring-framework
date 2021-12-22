@@ -622,19 +622,30 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		if (earlySingletonExposure) {
+			// allowEarlyReference 为 false 表示不允许从 3 级缓存里拿数据
 			Object earlySingletonReference = getSingleton(beanName, false);
+			// earlySingletonReference != null 说明从 2 级缓存里获取到当前 bean 实例
+			// 同时说明产生了循环依赖，且当前对象的 ObjectFactory.getObject() 被调用过（是否被代理取决于项目中是否有 AOP 依赖）
 			if (earlySingletonReference != null) {
+				// 两种情况：1.项目里没有 AOP，没被代理；2.项目中有 AOP，被代理
 				if (exposedObject == bean) {
 					exposedObject = earlySingletonReference;
 				}
+				// hasDependentBean(beanName) 表示如果有其它 bean 依赖当前 bean
 				else if (!this.allowRawInjectionDespiteWrapping && hasDependentBean(beanName)) {
+					// 获取依赖当前 bean 的其它 beanName
 					String[] dependentBeans = getDependentBeans(beanName);
 					Set<String> actualDependentBeans = new LinkedHashSet<>(dependentBeans.length);
 					for (String dependentBean : dependentBeans) {
+						// removeSingletonIfCreatedForTypeCheckOnly 返回 true 表示当前 bean 尚未创建完成，返回 false 表示当前 bean 已创建完成
+						// 条件成立说明：依赖当前 bean 的 bean 已创建完成
 						if (!removeSingletonIfCreatedForTypeCheckOnly(dependentBean)) {
 							actualDependentBeans.add(dependentBean);
 						}
 					}
+					// !actualDependentBeans.isEmpty() 成立说明当前 bean 还未创建成功，但依赖当前 bean 的 bean 已创建完成
+					// 假设当前 bean 是按正常逻辑在 initializeBean 里完成 AOP 代理的，那么，依赖当前 bean 的 bean 已创建完成意味着，依赖当前 bean 的 bean 里持有的当前 bean 是没有被增强的，这是有问题的，所以要抛异常
+					// todo 什么情况下会达成此条件？自己实现的某个 bean 后置处理器 可能达成此条件吗？
 					if (!actualDependentBeans.isEmpty()) {
 						throw new BeanCurrentlyInCreationException(beanName,
 								"Bean with name '" + beanName + "' has been injected into other beans [" +

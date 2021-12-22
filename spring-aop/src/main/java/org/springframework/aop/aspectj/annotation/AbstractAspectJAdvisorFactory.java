@@ -141,8 +141,10 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 
 	@Nullable
 	private static <A extends Annotation> AspectJAnnotation<A> findAnnotation(Method method, Class<A> toLookFor) {
+		// 提取 Annotation 数据
 		A result = AnnotationUtils.findAnnotation(method, toLookFor);
 		if (result != null) {
+			// 包装成为 AspectJ 类型注解
 			return new AspectJAnnotation<>(result);
 		}
 		else {
@@ -191,9 +193,12 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 
 		public AspectJAnnotation(A annotation) {
 			this.annotation = annotation;
+			// 将 annotation 类型转换为 对应的枚举
 			this.annotationType = determineAnnotationType(annotation);
 			try {
+				// 解析当前注解上定义的 切点表达式
 				this.pointcutExpression = resolveExpression(annotation);
+				// 一般情况下 argNames 不配置，除非使用到 运行时匹配
 				Object argNames = AnnotationUtils.getValue(annotation, "argNames");
 				this.argumentNames = (argNames instanceof String ? (String) argNames : "");
 			}

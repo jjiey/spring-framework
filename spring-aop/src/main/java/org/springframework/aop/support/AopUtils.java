@@ -16,15 +16,6 @@
 
 package org.springframework.aop.support;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.springframework.aop.Advisor;
 import org.springframework.aop.AopInvocationException;
 import org.springframework.aop.IntroductionAdvisor;
@@ -40,6 +31,15 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Utility methods for AOP support code.
@@ -223,10 +223,12 @@ public abstract class AopUtils {
 	 */
 	public static boolean canApply(Pointcut pc, Class<?> targetClass, boolean hasIntroductions) {
 		Assert.notNull(pc, "Pointcut must not be null");
+		// 匹配 class
 		if (!pc.getClassFilter().matches(targetClass)) {
 			return false;
 		}
 
+		// 方法匹配器
 		MethodMatcher methodMatcher = pc.getMethodMatcher();
 		if (methodMatcher == MethodMatcher.TRUE) {
 			// No need to iterate the methods if we're matching any method anyway...
@@ -238,13 +240,19 @@ public abstract class AopUtils {
 			introductionAwareMethodMatcher = (IntroductionAwareMethodMatcher) methodMatcher;
 		}
 
+		// 保存当前目标对象 clazz + 自身实现的接口 + 目标对象父类、父父类... 的接口
 		Set<Class<?>> classes = new LinkedHashSet<>();
+		// 如果 targetClass 被代理过
 		if (!Proxy.isProxyClass(targetClass)) {
+			// 添加 targetClass 的原始类（用户自定义类）
 			classes.add(ClassUtils.getUserClass(targetClass));
 		}
+		// 自身实现的接口 + 目标对象父类、父父类... 的接口
 		classes.addAll(ClassUtils.getAllInterfacesForClassAsSet(targetClass));
 
+		// for 循环检查 classes 中每个 class 的方法是否能被 方法匹配器 匹配，如果有一个方法匹配成功，就说明目标 class 需要被 AOP 代理增强
 		for (Class<?> clazz : classes) {
+			// 获取当前 class 内定义的所有 method
 			Method[] methods = ReflectionUtils.getAllDeclaredMethods(clazz);
 			for (Method method : methods) {
 				if (introductionAwareMethodMatcher != null ?
@@ -255,6 +263,7 @@ public abstract class AopUtils {
 			}
 		}
 
+		// 没有方法匹配成功，不需要创建代理
 		return false;
 	}
 
@@ -284,8 +293,10 @@ public abstract class AopUtils {
 		if (advisor instanceof IntroductionAdvisor) {
 			return ((IntroductionAdvisor) advisor).getClassFilter().matches(targetClass);
 		}
+		// 大部分情况。ReflectiveAspectJAdvisorFactory.getAdvisor 最后返回的是 InstantiationModelAwarePointcutAdvisorImpl
 		else if (advisor instanceof PointcutAdvisor) {
 			PointcutAdvisor pca = (PointcutAdvisor) advisor;
+			// 判断当前 Advisor 是否匹配当前 class
 			return canApply(pca.getPointcut(), targetClass, hasIntroductions);
 		}
 		else {
@@ -318,6 +329,7 @@ public abstract class AopUtils {
 				// already processed
 				continue;
 			}
+			// 判断当前 Advisor 是否匹配当前 class
 			if (canApply(candidate, clazz, hasIntroductions)) {
 				eligibleAdvisors.add(candidate);
 			}

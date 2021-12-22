@@ -16,19 +16,18 @@
 
 package org.springframework.aop.aspectj.annotation;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.aspectj.lang.reflect.PerClauseKind;
-
 import org.springframework.aop.Advisor;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Helper for retrieving @AspectJ beans from a BeanFactory and building
@@ -83,30 +82,43 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 	public List<Advisor> buildAspectJAdvisors() {
 		List<String> aspectNames = this.aspectBeanNames;
 
+		// 缓存
 		if (aspectNames == null) {
 			synchronized (this) {
 				aspectNames = this.aspectBeanNames;
 				if (aspectNames == null) {
+					// 保存通过 @Aspect 注解定义的 Advisor 数据
 					List<Advisor> advisors = new ArrayList<>();
+					// 添加 @Aspect 注解的 BeanName
 					aspectNames = new ArrayList<>();
+					// 获取 Spring 容器内全部的 beanName
 					String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 							this.beanFactory, Object.class, true, false);
 					for (String beanName : beanNames) {
+						// java config 下 99% 为 true
 						if (!isEligibleBean(beanName)) {
 							continue;
 						}
 						// We must be careful not to instantiate beans eagerly as in this case they
 						// would be cached by the Spring container but would not have been weaved.
 						Class<?> beanType = this.beanFactory.getType(beanName);
+						// 当 bean 标签是 parent 类型的时候，class 可以是 null
 						if (beanType == null) {
 							continue;
 						}
+						// 查询当前类、父类、父父类 ... 是否有 @Aspect 注解，如果有说明当前类型是 Aspect 类型
 						if (this.advisorFactory.isAspect(beanType)) {
+							/* 只有标注 @Aspect 注解的类及其子类 才能走到这里 */
 							aspectNames.add(beanName);
+							// Aspect 元数据
 							AspectMetadata amd = new AspectMetadata(beanType, beanName);
+							// 正常情况下，AjType 都是 PerClauseKind.SINGLETON。其它情况暂不考虑，属于 AspectJ 高级用法
 							if (amd.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) {
+								// 使用工厂模式管理 Aspect 元数据 关联的 真实 @Aspect 注解的 实例对象
 								MetadataAwareAspectInstanceFactory factory =
 										new BeanFactoryAspectInstanceFactory(this.beanFactory, beanName);
+								// 获取指定添加了 @Aspect 注解的 class 相关的　Advisor 信息
+								// ReflectiveAspectJAdvisorFactory，复杂
 								List<Advisor> classAdvisors = this.advisorFactory.getAdvisors(factory);
 								if (this.beanFactory.isSingleton(beanName)) {
 									this.advisorsCache.put(beanName, classAdvisors);
@@ -129,6 +141,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 							}
 						}
 					}
+					// 缓存结果
 					this.aspectBeanNames = aspectNames;
 					return advisors;
 				}
@@ -139,6 +152,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 			return Collections.emptyList();
 		}
 		List<Advisor> advisors = new ArrayList<>();
+		// 汇总所有的 Advisor
 		for (String aspectName : aspectNames) {
 			List<Advisor> cachedAdvisors = this.advisorsCache.get(aspectName);
 			if (cachedAdvisors != null) {

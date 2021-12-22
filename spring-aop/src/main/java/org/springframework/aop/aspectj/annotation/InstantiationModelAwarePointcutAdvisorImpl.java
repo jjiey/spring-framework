@@ -16,14 +16,8 @@
 
 package org.springframework.aop.aspectj.annotation;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.Serializable;
-import java.lang.reflect.Method;
-
 import org.aopalliance.aop.Advice;
 import org.aspectj.lang.reflect.PerClauseKind;
-
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.aop.aspectj.AspectJPrecedenceInformation;
@@ -32,6 +26,11 @@ import org.springframework.aop.aspectj.annotation.AbstractAspectJAdvisorFactory.
 import org.springframework.aop.support.DynamicMethodMatcherPointcut;
 import org.springframework.aop.support.Pointcuts;
 import org.springframework.lang.Nullable;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.lang.reflect.Method;
 
 /**
  * Internal implementation of AspectJPointcutAdvisor.
@@ -80,6 +79,12 @@ final class InstantiationModelAwarePointcutAdvisorImpl
 	private Boolean isAfterAdvice;
 
 
+	// expressionPointcut：关键是里面包装的 切点表达式
+	// candidateAdviceMethod：当前方法，内部会把当前方法封装成为 advice
+	// aspectJAdvisorFactory：构建 Advisor 的工厂
+	// aspectInstanceFactory：通过它可以拿到 @Aspect 注解实例 或 元数据
+	// declarationOrderInAspect
+	// aspectName：添加了 @Aspect 的当前 class 的 BeanName
 	public InstantiationModelAwarePointcutAdvisorImpl(AspectJExpressionPointcut declaredPointcut,
 			Method aspectJAdviceMethod, AspectJAdvisorFactory aspectJAdvisorFactory,
 			MetadataAwareAspectInstanceFactory aspectInstanceFactory, int declarationOrder, String aspectName) {
@@ -87,13 +92,16 @@ final class InstantiationModelAwarePointcutAdvisorImpl
 		this.declaredPointcut = declaredPointcut;
 		this.declaringClass = aspectJAdviceMethod.getDeclaringClass();
 		this.methodName = aspectJAdviceMethod.getName();
+		// 当前方法的参数类型数组
 		this.parameterTypes = aspectJAdviceMethod.getParameterTypes();
+		// 增强逻辑的方法，添加了 @Before ... 的那些方法
 		this.aspectJAdviceMethod = aspectJAdviceMethod;
 		this.aspectJAdvisorFactory = aspectJAdvisorFactory;
 		this.aspectInstanceFactory = aspectInstanceFactory;
 		this.declarationOrder = declarationOrder;
 		this.aspectName = aspectName;
 
+		// AOP 高级应用，正常情况不走这个分支
 		if (aspectInstanceFactory.getAspectMetadata().isLazilyInstantiated()) {
 			// Static part of the pointcut is a lazy type.
 			Pointcut preInstantiationPointcut = Pointcuts.union(
@@ -110,6 +118,8 @@ final class InstantiationModelAwarePointcutAdvisorImpl
 			// A singleton aspect.
 			this.pointcut = this.declaredPointcut;
 			this.lazy = false;
+			// 创建 Advice 对象，Advice 和 Advisor 是一一对应的。Spring 中 每个 Advisor 内部一定持有一个 Advice
+			// advice 内部最重要的数据是当前 method，因为增强逻辑，最终还是要通过反射方式调用回当前 method；还有 aspectInstanceFactory 通过这个 Factory 获取到添加 @Aspect 注解的实例，有了 实例 和 目标方法，才能反射调用
 			this.instantiatedAdvice = instantiateAdvice(this.declaredPointcut);
 		}
 	}
@@ -146,6 +156,12 @@ final class InstantiationModelAwarePointcutAdvisorImpl
 	}
 
 	private Advice instantiateAdvice(AspectJExpressionPointcut pointcut) {
+		// aspectJAdviceMethod：当前 Advisor 内部包装的添加了 @Before ... 的方法
+		// pointcut：@Pointcut 注解标注方法上定义的 切点表达式
+		// aspectInstanceFactory：
+		// declarationOrder：
+		// aspectName：
+		// 将 candidateAdviceMethod 包装成 Advice 对象
 		Advice advice = this.aspectJAdvisorFactory.getAdvice(this.aspectJAdviceMethod, pointcut,
 				this.aspectInstanceFactory, this.declarationOrder, this.aspectName);
 		return (advice != null ? advice : EMPTY_ADVICE);

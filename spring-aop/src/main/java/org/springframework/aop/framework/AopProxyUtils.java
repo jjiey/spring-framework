@@ -16,11 +16,6 @@
 
 package org.springframework.aop.framework;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.Arrays;
-
 import org.springframework.aop.SpringProxy;
 import org.springframework.aop.TargetClassAware;
 import org.springframework.aop.TargetSource;
@@ -30,6 +25,11 @@ import org.springframework.core.DecoratingProxy;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
 
 /**
  * Utility methods for AOP proxy factories.
@@ -108,7 +108,7 @@ public abstract class AopProxyUtils {
 	 * {@link AdvisedSupport#setOpaque "opaque"} flag is on. Always adds the
 	 * {@link org.springframework.aop.SpringProxy} marker interface.
 	 * @param advised the proxy config
-	 * @param decoratingProxy whether to expose the {@link DecoratingProxy} interface
+	 * @param decoratingProxy whether to expose the {@link DecoratingProxy} interface 是否暴露 DecoratingProxy 接口
 	 * @return the complete set of interfaces to proxy
 	 * @since 4.3
 	 * @see SpringProxy
@@ -116,23 +116,33 @@ public abstract class AopProxyUtils {
 	 * @see DecoratingProxy
 	 */
 	static Class<?>[] completeProxiedInterfaces(AdvisedSupport advised, boolean decoratingProxy) {
+		// 从 ProxyFactory 中拿到所有的 target 提取出来的接口
 		Class<?>[] specifiedInterfaces = advised.getProxiedInterfaces();
 		if (specifiedInterfaces.length == 0) {
 			// No user-specified interfaces: check whether target class is an interface.
+			// 翻译：用户没有指定接口：检查 target 类是否为接口
 			Class<?> targetClass = advised.getTargetClass();
 			if (targetClass != null) {
+				// 如果 targetClass 是接口
 				if (targetClass.isInterface()) {
 					advised.setInterfaces(targetClass);
 				}
+				// 条件成立：targetClass 不是接口，但通过 getProxyClass 或 newProxyInstance 动态生成为代理类了
 				else if (Proxy.isProxyClass(targetClass)) {
 					advised.setInterfaces(targetClass.getInterfaces());
 				}
 				specifiedInterfaces = advised.getProxiedInterfaces();
 			}
 		}
+		// 目标对象所有接口中不存在 SpringProxy 接口。为 true 表示需要添加该接口
+		// 如果没有的话需要添加这个接口，这个接口标识这个代理类型是 Spring 构造的
 		boolean addSpringProxy = !advised.isInterfaceProxied(SpringProxy.class);
+		// !advised.isOpaque()：是否不允许将代理对象转换为 advice      opaque：不透明的
+		// 允许将代理对象转换为 Advised 接口，且目标对象所有接口中不存在 Advised 接口。为 true 表示需要添加该接口
 		boolean addAdvised = !advised.isOpaque() && !advised.isInterfaceProxied(Advised.class);
+		// 允许装饰代理对象，且目标对象所有接口中不存在 DecoratingProxy 接口。为 true 表示需要添加该接口
 		boolean addDecoratingProxy = (decoratingProxy && !advised.isInterfaceProxied(DecoratingProxy.class));
+		// 非用户自己定义的接口个数
 		int nonUserIfcCount = 0;
 		if (addSpringProxy) {
 			nonUserIfcCount++;
@@ -143,9 +153,13 @@ public abstract class AopProxyUtils {
 		if (addDecoratingProxy) {
 			nonUserIfcCount++;
 		}
+		// 创建一个新的 class 数组，长度是 target 提取出来的接口数量 + Spring 自己追加的接口数量
 		Class<?>[] proxiedInterfaces = new Class<?>[specifiedInterfaces.length + nonUserIfcCount];
+		// target 提取出来的接口拷贝到 proxiedInterfaces
 		System.arraycopy(specifiedInterfaces, 0, proxiedInterfaces, 0, specifiedInterfaces.length);
+		// 获取原目标对象提取出来的接口数量，当做当前 index 给数组追加 Spring 自己追加的接口
 		int index = specifiedInterfaces.length;
+		// 追加 Spring 框架定义的接口到 proxiedInterfaces
 		if (addSpringProxy) {
 			proxiedInterfaces[index] = SpringProxy.class;
 			index++;
@@ -157,6 +171,7 @@ public abstract class AopProxyUtils {
 		if (addDecoratingProxy) {
 			proxiedInterfaces[index] = DecoratingProxy.class;
 		}
+		// 返回追加 Spring 自身接口后的数组集合
 		return proxiedInterfaces;
 	}
 

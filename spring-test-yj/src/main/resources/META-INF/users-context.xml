@@ -6,7 +6,7 @@
         xsi:schemaLocation="http://www.springframework.org/schema/beans
         https://www.springframework.org/schema/beans/spring-beans.xsd
         http://time.geekbang.org/schema/users
-        http://time.geekbang.org/schema/users.xsd
+<!--        http://time.geekbang.org/schema/users.xsd-->
 ">
 
     <!--

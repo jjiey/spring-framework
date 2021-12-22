@@ -1770,6 +1770,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 	/**
 	 * Create an {@link Optional} wrapper for the specified dependency.
+	 *
+	 * 为指定的依赖创建一个 Optional 包装。
 	 */
 	private Optional<?> createOptionalDependency(
 			DependencyDescriptor descriptor, @Nullable String beanName, final Object... args) {
@@ -2023,6 +2025,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	 * Separate inner class for avoiding a hard dependency on the {@code javax.inject} API.
 	 * Actual {@code javax.inject.Provider} implementation is nested here in order to make it
 	 * invisible for Graal's introspection of DefaultListableBeanFactory's nested classes.
+	 *
+	 * in order to：为了
+	 * 单独的内部类，以避免对 javax.inject API 的强依赖。实际的 javax.inject.Provider 实现被嵌套在此处，以使其对 Graal 对于 DefaultListableBeanFactory 嵌套类的自省不可见。
 	 */
 	private class Jsr330Factory implements Serializable {
 
