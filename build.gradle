@@ -35,6 +35,8 @@ configure(allprojects) { project ->
 		if (version.endsWith('-SNAPSHOT')) {
 			maven { url "https://repo.spring.io/snapshot" }
 		}
+		// see https://developer.aliyun.com/mvn/guide
+		maven { url "https://maven.aliyun.com/nexus/content/groups/public" }
 	}
 	configurations.all {
 		resolutionStrategy {
