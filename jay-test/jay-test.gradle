@@ -1,0 +1,10 @@
+description = "Jay Test"
+
+apply plugin: "kotlin"
+
+dependencies {
+    api(project(":spring-context"))
+    testImplementation("junit:junit:4.13.2")
+    compileOnly("org.projectlombok:lombok:1.18.34")
+    annotationProcessor("org.projectlombok:lombok:1.18.34")
+}
